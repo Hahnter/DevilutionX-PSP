@@ -26,6 +26,7 @@ if(PSP)
   # or pkg-config file for the base SDL2 library, so use our own finder.
   list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/platforms/psp")
 endif()
+message(STATUS "DEBUG PSP=${PSP} CMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
 
 if(EMSCRIPTEN)
   # We use `USE_PTHREADS=1` here to get a version of SDL2 that supports threads.
