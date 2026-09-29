@@ -44,13 +44,15 @@ jobs:
       uses: actions/cache@v4
       with:
         path: build
-        key: psp-cmake-v5-${{ github.sha }}
-        restore-keys: psp-cmake-v5-
+        key: psp-cmake-v6-${{ github.sha }}
+        restore-keys: psp-cmake-v6-
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: psp-cmake -S. -Bbuild  -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_PRX=1 -DENC_PRX=1
+      run: |
+        rm -f build/CMakeCache.txt
+        psp-cmake -S. -Bbuild  -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_PRX=1 -DENC_PRX=1
 
     - name: Build
       working-directory: ${{github.workspace}}
