@@ -69,7 +69,8 @@ Want to compile the program by yourself? Great! Simply follow the [build instruc
 
 This fork adds a working PSP port, tested on PSP 3000 hardware and the PPSSPP emulator at ~30 FPS average.
 
-- **Setup**: extract to `ms0:/PSP/GAME/DevilutionX/` along with your own `DIABDAT.MPQ`
+- **Setup**: place `EBOOT.PBP` and `assets/` from the [PSP release ZIP](https://github.com/Hahnter/DevilutionX-PSP-Resurrected/releases/latest) in `ms0:/PSP/GAME/DevilutionX/` alongside your own `DIABDAT.MPQ`. For Hellfire, also add `hellfire.mpq`, `hfmonk.mpq`, `hfmusic.mpq`, and `hfvoice.mpq` to that folder.
+- **Hellfire test**: Monk character creation and early gameplay ran at about 30 FPS on PSP 3000. The intro cutscene was choppy; a full Hellfire playthrough has not yet been tested.
 - **Build instructions**: see the PSP section of [docs/building.md](docs/building.md)
 - **Full platform details**: see [PLATFORM_PSP.md](PLATFORM_PSP.md)
 - **Troubleshooting**: see [TROUBLESHOOTING.md](TROUBLESHOOTING.md)

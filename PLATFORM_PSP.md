@@ -15,7 +15,8 @@ A working port of DevilutionX to the PlayStation Portable (PSP), tested on PSP 3
 3. Create folder: `ms0:/PSP/GAME/DevilutionX/`
 4. Copy EBOOT.PBP and assets/ folder to that directory
 5. Copy DIABDAT.MPQ from your Diablo CD or GOG to the same folder
-6. Launch from PSP Games menu
+6. For Hellfire, also copy `hellfire.mpq`, `hfmonk.mpq`, `hfmusic.mpq`, and `hfvoice.mpq` from your own Hellfire installation into that folder
+7. Launch from PSP Games menu; choose Hellfire if prompted to select a game mode
 
 ### On PPSSPP Emulator
 
@@ -31,6 +32,10 @@ A working port of DevilutionX to the PlayStation Portable (PSP), tested on PSP 3
 PSP/GAME/DevilutionX/
 ├── EBOOT.PBP          (game executable)
 ├── DIABDAT.MPQ        (game data - from your Diablo)
+├── hellfire.mpq       (optional - Hellfire only)
+├── hfmonk.mpq         (optional - Hellfire only)
+├── hfmusic.mpq        (optional - Hellfire only)
+├── hfvoice.mpq        (optional - Hellfire only)
 ├── assets/            (game resources)
 │   ├── gui/
 │   ├── music/
@@ -39,7 +44,7 @@ PSP/GAME/DevilutionX/
 └── diablo.ini         (config - created automatically)
 ```
 
-**Important**: DIABDAT.MPQ must be provided by you (from Diablo CD or GOG purchase).
+**Important**: You must provide `DIABDAT.MPQ` and, for Hellfire, the four Hellfire MPQs from your own games. The PSP release includes `EBOOT.PBP` and `assets/`, but not the commercial game data.
 
 ---
 
@@ -51,6 +56,9 @@ PSP/GAME/DevilutionX/
 - Item management and inventory
 - Spell system and abilities
 - Multiplayer support (over PSP network) — implemented but not extensively tested; treat as experimental
+
+✅ **Hellfire mode (initial PSP 3000 test)**
+- Monk character creation and early gameplay ran at about 30 FPS
 
 ✅ **Performance optimized for PSP**
 - ~30 FPS average on PSP 3000
@@ -173,7 +181,7 @@ In-game:
 
 ## Known Limitations
 
-- **No Hellfire expansion** - Optional DLC not implemented
+- **Hellfire testing is limited** - The intro cutscene was choppy on PSP 3000, and a full Hellfire playthrough has not yet been tested
 - **Network multiplayer** - Implemented but not extensively tested; may not work on all connections
 - **Only PSP 3000 verified on hardware** - PSP 1000/2000/Go are expected to work (same architecture) but haven't been tested
 - **No controller rebinding for menus** - Use touch or specific buttons
