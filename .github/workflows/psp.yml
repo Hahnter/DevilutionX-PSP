@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -41,7 +41,7 @@ jobs:
       uses: krystalgamer/setup-psptoolchain@latest
   
     - name: Cache CMake build folder
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: build
         key: psp-cmake-v5-${{ github.sha }}
@@ -60,7 +60,7 @@ jobs:
   
     - name: Upload-Package
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: EBOOT.PBP
         path: /home/runner/work/DevilutionX-PSP/DevilutionX-PSP/build
