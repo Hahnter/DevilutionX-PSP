@@ -180,7 +180,7 @@ DIABDAT.MPQ
 assets/                 (from the same build as EBOOT.PBP)
 ```
 
-If you built `devilutionx.mpq`, it can replace the `assets/` directory. Keep the game data and the matching engine assets alongside the EBOOT. This port is still under hardware testing; a bootable EBOOT alone does not establish playable performance.
+If you built `devilutionx.mpq`, it can replace the `assets/` directory. Keep the game data and the matching engine assets alongside the EBOOT. This port has been tested on PSP 3000 hardware and the PPSSPP emulator at ~30 FPS average; PSP 1000/2000/Go are untested but expected to work on the same architecture. See [PLATFORM_PSP.md](../PLATFORM_PSP.md) for details and [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) if you run into issues.
 
 </details>
 

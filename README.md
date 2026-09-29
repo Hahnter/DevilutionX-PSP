@@ -65,6 +65,15 @@ Linux x86-64, Switch, Vita, 3DS, Amiga, [![CircleCI](https://circleci.com/gh/dia
 
 Want to compile the program by yourself? Great! Simply follow the [build instructions](./docs/building.md).
 
+# PlayStation Portable (PSP)
+
+This fork adds a working PSP port, tested on PSP 3000 hardware and the PPSSPP emulator at ~30 FPS average.
+
+- **Setup**: extract to `ms0:/PSP/GAME/DevilutionX/` along with your own `DIABDAT.MPQ`
+- **Build instructions**: see the PSP section of [docs/building.md](docs/building.md)
+- **Full platform details**: see [PLATFORM_PSP.md](PLATFORM_PSP.md)
+- **Troubleshooting**: see [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+
 # Credits
 
 - The original Devilution project [Devilution](https://github.com/diasurgical/devilution#credits)

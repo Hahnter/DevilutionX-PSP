@@ -18,6 +18,8 @@ For a hardware test, copy `build-psp/EBOOT.PBP` and the entire `build-psp/assets
 
 This produces an unsigned homebrew EBOOT for a PSP with homebrew enabled.
 
+For platform details, tested hardware, and known limitations, see [PLATFORM_PSP.md](../PLATFORM_PSP.md). For build/runtime issues, see [TROUBLESHOOTING.md](../TROUBLESHOOTING.md).
+
 </details>
 
 Note: If you do not use git or `devilutionx-src.tar.xz` to get the source you must provide the version to CMake manually:
