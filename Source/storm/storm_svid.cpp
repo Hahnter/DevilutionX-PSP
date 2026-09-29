@@ -167,7 +167,7 @@ void UpdatePalette()
 
 bool BlitFrame()
 {
-#ifndef USE_SDL1
+#if !defined(USE_SDL1) && !defined(PSP)
 	if (renderer != nullptr) {
 		if (SDL_BlitSurface(SVidSurface.get(), nullptr, GetOutputSurface(), nullptr) <= -1) {
 			Log("{}", SDL_GetError());
@@ -180,7 +180,11 @@ bool BlitFrame()
 #ifdef USE_SDL1
 		const bool isIndexedOutputFormat = SDLBackport_IsPixelFormatIndexed(outputSurface->format);
 #else
+#ifdef PSP
+		const Uint32 wndFormat = outputSurface->format->format;
+#else
 		const Uint32 wndFormat = SDL_GetWindowPixelFormat(ghMainWnd);
+#endif
 		const bool isIndexedOutputFormat = SDL_ISPIXELFORMAT_INDEXED(wndFormat);
 #endif
 		SDL_Rect outputRect;
@@ -282,18 +286,16 @@ bool SVidPlayBegin(const char *filename, int flags)
 	Smacker_GetFrameSize(SVidHandle, SVidWidth, SVidHeight);
 
 #ifndef USE_SDL1
+#ifndef PSP
 	if (renderer != nullptr) {
 		int renderWidth = static_cast<int>(SVidWidth);
 		int renderHeight = static_cast<int>(SVidHeight);
-#ifdef PSP
-		texture = SDLWrap::CreateTexture(renderer, SDL_PIXELFORMAT_ABGR1555, SDL_TEXTUREACCESS_STREAMING, renderWidth, renderHeight);
-#else
 		texture = SDLWrap::CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, renderWidth, renderHeight);
-#endif
 		if (SDL_RenderSetLogicalSize(renderer, renderWidth, renderHeight) <= -1) {
 			ErrSdl();
 		}
 	}
+#endif
 #else
 	TrySetVideoModeToSVidForSDL1();
 #endif
@@ -382,16 +384,14 @@ void SVidPlayEnd()
 	SVidFrameBuffer = nullptr;
 
 #ifndef USE_SDL1
+#ifndef PSP
 	if (renderer != nullptr) {
-#ifdef PSP
-		texture = SDLWrap::CreateTexture(renderer, SDL_PIXELFORMAT_ABGR1555, SDL_TEXTUREACCESS_STREAMING, gnScreenWidth, gnScreenHeight);
-#else
 		texture = SDLWrap::CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, gnScreenWidth, gnScreenHeight);
-#endif
 		if (renderer != nullptr && SDL_RenderSetLogicalSize(renderer, gnScreenWidth, gnScreenHeight) <= -1) {
 			ErrSdl();
 		}
 	}
+#endif
 #else
 	if (IsSVidVideoMode) {
 		SetVideoModeToPrimary(IsFullScreen(), gnScreenWidth, gnScreenHeight);

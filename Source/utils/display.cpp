@@ -76,6 +76,7 @@ const Rectangle &GetUIRectangle()
 namespace {
 
 #ifndef USE_SDL1
+#ifndef PSP
 void CalculatePreferredWindowSize(int &width, int &height)
 {
 	SDL_DisplayMode mode;
@@ -88,7 +89,9 @@ void CalculatePreferredWindowSize(int &width, int &height)
 	}
 
 	if (*sgOptions.Graphics.integerScaling) {
-		int factor = std::min(mode.w / width, mode.h / height);
+		// A saved resolution may be larger than the physical display. In that
+		// case integer scaling cannot fit even once; use the display size.
+		int factor = std::max(1, std::min(mode.w / width, mode.h / height));
 		width = mode.w / factor;
 		height = mode.h / factor;
 		return;
@@ -103,6 +106,7 @@ void CalculatePreferredWindowSize(int &width, int &height)
 		height = mode.h * width / mode.w;
 	}
 }
+#endif
 
 void FreeRenderer()
 {
@@ -159,12 +163,22 @@ Size GetPreferredWindowSize()
 {
 	Size windowSize = forceResolution.width != 0 ? forceResolution : *sgOptions.Graphics.resolution;
 
+#ifdef PSP
+	// Keep the physical SDL window at the PSP resolution. The game and its
+	// 640x480 UI are rendered into a separate logical surface below.
+	windowSize = { 480, 272 };
+#else
 #ifndef USE_SDL1
 	if (*sgOptions.Graphics.upscale && *sgOptions.Graphics.fitToScreen) {
 		CalculatePreferredWindowSize(windowSize.width, windowSize.height);
 	}
 #endif
+#endif
+#ifdef PSP
+	AdjustToScreenGeometry({ 640, 480 });
+#else
 	AdjustToScreenGeometry(windowSize);
+#endif
 	return windowSize;
 }
 
@@ -354,6 +368,9 @@ void ReinitializeTexture()
 {
 	if (texture)
 		texture.reset();
+#ifdef PSP
+	PspRightTexture.reset();
+#endif
 
 	if (renderer == nullptr)
 		return;
@@ -362,7 +379,10 @@ void ReinitializeTexture()
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, quality.c_str());
 
 #ifdef PSP
-	texture = SDLWrap::CreateTexture(renderer, SDL_PIXELFORMAT_ABGR1555, SDL_TEXTUREACCESS_STREAMING, gnScreenWidth, gnScreenHeight);
+	// The PSP GE cannot use a texture wider than 512 pixels. Split the
+	// 640-pixel game surface without changing its original UI coordinates.
+	texture = SDLWrap::CreateTexture(renderer, SDL_PIXELFORMAT_ABGR1555, SDL_TEXTUREACCESS_STREAMING, PspFirstTextureWidth, gnScreenHeight);
+	PspRightTexture = SDLWrap::CreateTexture(renderer, SDL_PIXELFORMAT_ABGR1555, SDL_TEXTUREACCESS_STREAMING, gnScreenWidth - PspFirstTextureWidth, gnScreenHeight);
 #else
 	texture = SDLWrap::CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, gnScreenWidth, gnScreenHeight);
 #endif
@@ -393,11 +413,18 @@ void ReinitializeRenderer()
 #else
 	if (texture)
 		texture.reset();
+#ifdef PSP
+	PspRightTexture.reset();
+#endif
 
 	FreeRenderer();
 
 	if (*sgOptions.Graphics.upscale) {
 		Uint32 rendererFlags = 0;
+
+#ifdef PSP
+		rendererFlags |= SDL_RENDERER_ACCELERATED;
+#endif
 
 		if (*sgOptions.Graphics.vSync) {
 			rendererFlags |= SDL_RENDERER_PRESENTVSYNC;
@@ -407,6 +434,13 @@ void ReinitializeRenderer()
 		if (renderer == nullptr) {
 			ErrSdl();
 		}
+
+#ifdef PSP
+		SDL_RendererInfo rendererInfo;
+		if (SDL_GetRendererInfo(renderer, &rendererInfo) < 0)
+			ErrSdl();
+		Log("PSP SDL renderer: {}", rendererInfo.name);
+#endif
 
 		ReinitializeTexture();
 

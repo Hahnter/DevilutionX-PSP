@@ -137,7 +137,7 @@ private:
 		for (auto &entry : values) {
 			if (entry.pItem != nullptr)
 				ret.append(entry.pItem);
-			ret.append("\n");
+			ret.append("\r\n");
 		}
 		return ret;
 	}
@@ -371,6 +371,13 @@ void LoadOptions()
 			pEntry->LoadFromIni(pCategory->GetKey());
 		}
 	}
+
+#if defined(PSP) && !defined(USE_SDL1)
+	// The PSP needs the SDL hardware renderer to fit the 640x480 game on its
+	// display. Integer scaling cannot downscale that logical resolution.
+	sgOptions.Graphics.upscale.SetValue(true);
+	sgOptions.Graphics.integerScaling.SetValue(false);
+#endif
 
 	GetIniValue("Hellfire", "SItem", sgOptions.Hellfire.szItem, sizeof(sgOptions.Hellfire.szItem), "");
 
@@ -689,7 +696,14 @@ OptionEntryResolution::OptionEntryResolution()
 }
 void OptionEntryResolution::LoadFromIni(string_view category)
 {
+#ifdef PSP
+	// The physical PSP window is 480x272, but game and UI coordinates use
+	// 640x480. Ignore incompatible resolutions saved in an older config.
+	(void)category;
+	size = { DEFAULT_WIDTH, DEFAULT_HEIGHT };
+#else
 	size = { GetIniInt(category.data(), "Width", DEFAULT_WIDTH), GetIniInt(category.data(), "Height", DEFAULT_HEIGHT) };
+#endif
 }
 void OptionEntryResolution::SaveToIni(string_view category) const
 {
@@ -706,6 +720,11 @@ void OptionEntryResolution::CheckResolutionsAreInitialized() const
 {
 	if (!resolutions.empty())
 		return;
+
+#ifdef PSP
+	resolutions.emplace_back(Size { DEFAULT_WIDTH, DEFAULT_HEIGHT }, StrCat(DEFAULT_WIDTH, "x", DEFAULT_HEIGHT));
+	return;
+#endif
 
 	std::vector<Size> sizes;
 	float scaleFactor = GetDpiScalingFactor();
@@ -962,7 +981,11 @@ GraphicsOptions::GraphicsOptions()
     , fitToScreen("Fit to Screen", OptionEntryFlags::CantChangeInGame | OptionEntryFlags::RecreateUI, N_("Fit to Screen"), N_("Automatically adjust the game window to your current desktop screen aspect ratio and resolution."), true)
 #endif
 #ifndef USE_SDL1
-    , upscale("Upscale", OnlyIfNoImplicitRenderer | OptionEntryFlags::CantChangeInGame | OptionEntryFlags::RecreateUI, N_("Upscale"), N_("Enables image scaling from the game resolution to your monitor resolution. Prevents changing the monitor resolution and allows window resizing."),
+    , upscale("Upscale", OnlyIfNoImplicitRenderer | OptionEntryFlags::CantChangeInGame | OptionEntryFlags::RecreateUI
+#ifdef PSP
+          | OptionEntryFlags::Invisible
+#endif
+          , N_("Upscale"), N_("Enables image scaling from the game resolution to your monitor resolution. Prevents changing the monitor resolution and allows window resizing."),
 #ifdef NXDK
           false
 #else
@@ -975,7 +998,11 @@ GraphicsOptions::GraphicsOptions()
               { ScalingQuality::BilinearFiltering, N_("Bilinear") },
               { ScalingQuality::AnisotropicFiltering, N_("Anisotropic") },
           })
-    , integerScaling("Integer Scaling", OptionEntryFlags::CantChangeInGame | OptionEntryFlags::RecreateUI, N_("Integer Scaling"), N_("Scales the image using whole number pixel ratio."), false)
+    , integerScaling("Integer Scaling", OptionEntryFlags::CantChangeInGame | OptionEntryFlags::RecreateUI
+#ifdef PSP
+          | OptionEntryFlags::Invisible
+#endif
+          , N_("Integer Scaling"), N_("Scales the image using whole number pixel ratio."), false)
     , vSync("Vertical Sync",
           OptionEntryFlags::RecreateUI
 #ifdef NXDK

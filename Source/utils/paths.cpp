@@ -78,6 +78,8 @@ const std::string &PrefPath()
 	if (!prefPath) {
 #if defined(__IPHONEOS__)
 		prefPath = FromSDL(IOSGetPrefPath());
+#elif defined(PSP)
+		prefPath = BasePath();
 #elif defined(NXDK)
 		prefPath = NxdkGetPrefPath();
 #else
@@ -97,6 +99,8 @@ const std::string &ConfigPath()
 	if (!configPath) {
 #if defined(__IPHONEOS__)
 		configPath = FromSDL(IOSGetPrefPath());
+#elif defined(PSP)
+		configPath = BasePath();
 #elif defined(NXDK)
 		configPath = NxdkGetPrefPath();
 #else

@@ -170,6 +170,20 @@ If you'd like to use this option, scan the QR code below.
 
 </details>
 
+<details><summary>PlayStation Portable (PSP)</summary>
+
+Build the PSP branch as described in [Building from Source](building.md). Copy these files to `ms0:/PSP/GAME/DevilutionX/`:
+
+```text
+EBOOT.PBP
+DIABDAT.MPQ
+assets/                 (from the same build as EBOOT.PBP)
+```
+
+If you built `devilutionx.mpq`, it can replace the `assets/` directory. Keep the game data and the matching engine assets alongside the EBOOT. This port is still under hardware testing; a bootable EBOOT alone does not establish playable performance.
+
+</details>
+
 <details><summary>ClockworkPi GameShell</summary>
 
 - Copy the `__init__.py` to a newly created folder under /home/cpi/apps/Menu and run it from the menu. The folder then symbolizes the devilutionX icon.

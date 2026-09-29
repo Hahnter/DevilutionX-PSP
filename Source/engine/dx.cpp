@@ -5,6 +5,8 @@
  */
 #include "engine/dx.h"
 
+#include <cstdint>
+
 #include <SDL.h>
 
 #include "controls/plrctrls.h"
@@ -28,6 +30,9 @@ int refreshDelay;
 SDL_Renderer *renderer;
 #ifndef USE_SDL1
 SDLTextureUniquePtr texture;
+#ifdef PSP
+SDLTextureUniquePtr PspRightTexture;
+#endif
 #endif
 
 /** Currently active palette */
@@ -71,14 +76,13 @@ void LimitFrameRate()
 {
 	if (!*sgOptions.Graphics.limitFPS)
 		return;
-	static uint32_t frameDeadline;
-	uint32_t tc = SDL_GetTicks() * 1000;
-	uint32_t v = 0;
-	if (frameDeadline > tc) {
-		v = tc % refreshDelay;
-		SDL_Delay(v / 1000 + 1); // ceil
+	static uint64_t frameDeadline;
+	const uint64_t now = static_cast<uint64_t>(SDL_GetTicks()) * 1000;
+	if (frameDeadline > now && frameDeadline - now <= static_cast<uint64_t>(refreshDelay)) {
+		const uint64_t remaining = frameDeadline - now;
+		SDL_Delay(static_cast<Uint32>((remaining + 999) / 1000));
 	}
-	frameDeadline = tc + v + refreshDelay;
+	frameDeadline = static_cast<uint64_t>(SDL_GetTicks()) * 1000 + refreshDelay;
 }
 
 } // namespace
@@ -113,6 +117,9 @@ void dx_cleanup()
 	RendererTextureSurface = nullptr;
 #ifndef USE_SDL1
 	texture = nullptr;
+#ifdef PSP
+	PspRightTexture = nullptr;
+#endif
 	if (*sgOptions.Graphics.upscale)
 		SDL_DestroyRenderer(renderer);
 #endif
@@ -225,9 +232,18 @@ void RenderPresent()
 
 #ifndef USE_SDL1
 	if (renderer != nullptr) {
+#ifdef PSP
+		const auto *pixels = static_cast<const std::uint8_t *>(surface->pixels);
+		const auto *rightPixels = pixels + PspFirstTextureWidth * surface->format->BytesPerPixel;
+		if (SDL_UpdateTexture(texture.get(), nullptr, pixels, surface->pitch) <= -1
+		    || SDL_UpdateTexture(PspRightTexture.get(), nullptr, rightPixels, surface->pitch) <= -1) {
+			ErrSdl();
+		}
+#else
 		if (SDL_UpdateTexture(texture.get(), nullptr, surface->pixels, surface->pitch) <= -1) { // pitch is 2560
 			ErrSdl();
 		}
+#endif
 
 		// Clear buffer to avoid artifacts in case the window was resized
 		if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) <= -1) { // TODO only do this if window was resized
@@ -237,9 +253,22 @@ void RenderPresent()
 		if (SDL_RenderClear(renderer) <= -1) {
 			ErrSdl();
 		}
+#ifdef PSP
+		// PSPDEV's SDL2 PSP renderer ignores the logical viewport offset when
+		// drawing textures. Apply it here so the 4:3 image has bars on both sides.
+		SDL_Rect viewport;
+		SDL_RenderGetViewport(renderer, &viewport);
+		const SDL_Rect leftRect = { viewport.x, viewport.y, PspFirstTextureWidth, gnScreenHeight };
+		const SDL_Rect rightRect = { viewport.x + PspFirstTextureWidth, viewport.y, gnScreenWidth - PspFirstTextureWidth, gnScreenHeight };
+		if (SDL_RenderCopy(renderer, texture.get(), nullptr, &leftRect) <= -1
+		    || SDL_RenderCopy(renderer, PspRightTexture.get(), nullptr, &rightRect) <= -1) {
+			ErrSdl();
+		}
+#else
 		if (SDL_RenderCopy(renderer, texture.get(), nullptr, nullptr) <= -1) {
 			ErrSdl();
 		}
+#endif
 		if (ControlMode == ControlTypes::VirtualGamepad) {
 			RenderVirtualGamepad(renderer);
 		}

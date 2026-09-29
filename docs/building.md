@@ -5,6 +5,21 @@ all the dependencies that must be vendored, the version information, and `devilu
 This is the version most appropriate for packaging DevilutionX for Linux distributions.
 For other use cases, use the git repository.
 
+<details><summary>PlayStation Portable (PSP)</summary>
+
+Install the [PSPDEV toolchain](https://pspdev.github.io/installation/) and its SDL2 port libraries, then build this branch with `psp-cmake`:
+
+```bash
+psp-cmake -S . -B build-psp -DCMAKE_BUILD_TYPE=Release -DBUILD_PRX=OFF -DENC_PRX=OFF -DBUILD_ASSETS_MPQ=OFF
+cmake --build build-psp -j
+```
+
+For a hardware test, copy `build-psp/EBOOT.PBP` and the entire `build-psp/assets/` directory to `ms0:/PSP/GAME/DevilutionX/`. Add your own `DIABDAT.MPQ` from Diablo. Keep the `assets/` directory from the same build as the EBOOT.
+
+This produces an unsigned homebrew EBOOT for a PSP with homebrew enabled.
+
+</details>
+
 Note: If you do not use git or `devilutionx-src.tar.xz` to get the source you must provide the version to CMake manually:
 
 ```bash
