@@ -1,6 +1,7 @@
 name: PSP
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - psp
