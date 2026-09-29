@@ -172,15 +172,21 @@ If you'd like to use this option, scan the QR code below.
 
 <details><summary>PlayStation Portable (PSP)</summary>
 
-Build the PSP branch as described in [Building from Source](building.md). Copy these files to `ms0:/PSP/GAME/DevilutionX/`:
+Download the [PSP release ZIP](https://github.com/Hahnter/DevilutionX-PSP-Resurrected/releases/latest) (or [build from source](building.md)). Copy these files to `ms0:/PSP/GAME/DevilutionX/`:
 
 ```text
 EBOOT.PBP
-DIABDAT.MPQ
-assets/                 (from the same build as EBOOT.PBP)
+assets/                 (from the release ZIP or the same build as EBOOT.PBP)
+DIABDAT.MPQ             (from your own Diablo copy)
+hellfire.mpq            (optional - Hellfire only)
+hfmonk.mpq              (optional - Hellfire only)
+hfmusic.mpq             (optional - Hellfire only)
+hfvoice.mpq             (optional - Hellfire only)
 ```
 
-If you built `devilutionx.mpq`, it can replace the `assets/` directory. Keep the game data and the matching engine assets alongside the EBOOT. This port has been tested on PSP 3000 hardware and the PPSSPP emulator at ~30 FPS average; PSP 1000/2000/Go are untested but expected to work on the same architecture. See [PLATFORM_PSP.md](../PLATFORM_PSP.md) for details and [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) if you run into issues.
+The release ZIP includes `assets/`, so you do not need a separate `devilutionx.mpq` for that package. If you built `devilutionx.mpq` yourself, it can replace the `assets/` directory when it matches your EBOOT. Keep the game data and engine assets alongside the EBOOT.
+
+Diablo gameplay has been tested on PSP 3000 hardware and the PPSSPP emulator at ~30 FPS average. Hellfire was tested on PSP 3000 through Monk character creation and early gameplay at about 30 FPS. Its intro cutscene was choppy, and a full Hellfire playthrough has not yet been tested. PSP 1000/2000/Go are untested but expected to work on the same architecture. See [PLATFORM_PSP.md](../PLATFORM_PSP.md) for details and [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) if you run into issues.
 
 </details>
 
