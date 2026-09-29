@@ -47,13 +47,6 @@ jobs:
         key: psp-cmake-v5-${{ github.sha }}
         restore-keys: psp-cmake-v5-
 
-    - name: Debug SDL2 location
-      shell: bash
-      run: |
-        find /usr/local/pspdev -iname "*sdl2-config*" 2>/dev/null || true
-        find /usr/local/pspdev -iname "*.pc" 2>/dev/null | grep -i sdl || true
-        find /usr/local/pspdev -iname "*.cmake" 2>/dev/null || true
-
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
