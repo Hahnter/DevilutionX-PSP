@@ -2,19 +2,6 @@ name: PSP
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - psp
-    paths-ignore:
-      - '*.md'
-  pull_request:
-    types: [opened, synchronize]
-    paths-ignore:
-      - '*.md'
-  release:
-    types: [published]
-    paths-ignore:
-      - '*.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -39,7 +26,7 @@ jobs:
       # You may pin to the exact commit or the version.
       # uses: krystalgamer/setup-psptoolchain@9042bd00c5813d383183c3967aef4f66713a4974
       uses: krystalgamer/setup-psptoolchain@latest
-  
+
     - name: Cache CMake build folder
       uses: actions/cache@v4
       with:
@@ -57,7 +44,7 @@ jobs:
       shell: bash
       run: |
         cmake --build build -j $(nproc)
-  
+
     - name: Upload-Package
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v4
