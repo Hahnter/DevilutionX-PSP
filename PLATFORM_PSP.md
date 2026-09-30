@@ -84,7 +84,7 @@ Frame rate varies with scene complexity — town and low-enemy areas run faster,
 
 - ✅ PSP 3000 (hardware) — confirmed working, ~30 FPS average
 - ✅ PPSSPP emulator — confirmed working
-- ⚠️ PSP 1000, PSP 2000, PSP Go — **not tested**. These share the same CPU/GPU architecture as the PSP 3000, so they should work, but this hasn't been verified on real hardware.
+- ⚠️ PSP 1000, PSP 2000, PSP Go — **not tested**. The PSP 1000 has only 32MB of RAM, so compatibility with it is especially uncertain.
 
 ---
 
@@ -183,7 +183,7 @@ In-game:
 
 - **Hellfire testing is limited** - The intro cutscene was choppy on PSP 3000, and a full Hellfire playthrough has not yet been tested
 - **Network multiplayer** - Implemented but not extensively tested; may not work on all connections
-- **Only PSP 3000 verified on hardware** - PSP 1000/2000/Go are expected to work (same architecture) but haven't been tested
+- **Only PSP 3000 verified on hardware** - PSP 1000/2000/Go have not been tested; the PSP 1000 has less RAM and may not run this build
 - **No controller rebinding for menus** - Use touch or specific buttons
 - **Performance varies** - Complex scenes may run below the ~30 FPS average
 
@@ -226,15 +226,15 @@ Not independently measured for this port. Expect battery life in the same range 
 
 | Model | Status |
 |-------|--------|
-| PSP 1000 | ⚠️ Untested — expected to work (same architecture) |
-| PSP 2000 | ⚠️ Untested — expected to work (same architecture) |
+| PSP 1000 | ⚠️ Untested — 32MB RAM; compatibility unknown |
+| PSP 2000 | ⚠️ Untested — 64MB RAM; compatibility unknown |
 | PSP 3000 | ✅ Tested & Working |
-| PSP Go | ⚠️ Untested — expected to work (same architecture) |
+| PSP Go | ⚠️ Untested — 64MB RAM; compatibility unknown |
 
 ### Memory Requirements
 
 - **Storage**: ~200MB (game + saves) — approximate, depends on assets and save count
-- **RAM**: Uses PSP's 32MB (shared)
+- **RAM**: PSP 3000 has 64MB of physical RAM. The EBOOT requests access to all available memory with `MEMSIZE=1`; actual usage has not been measured. PSP 1000 has 32MB and remains untested.
 - **Free space needed**: At least 1MB for saves
 
 ### Emulators
