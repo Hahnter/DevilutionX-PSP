@@ -186,7 +186,7 @@ hfvoice.mpq             (optional - Hellfire only)
 
 The release ZIP includes `assets/`, so you do not need a separate `devilutionx.mpq` for that package. If you built `devilutionx.mpq` yourself, it can replace the `assets/` directory when it matches your EBOOT. Keep the game data and engine assets alongside the EBOOT.
 
-Diablo gameplay has been tested on PSP 3000 hardware and the PPSSPP emulator at ~30 FPS average. Hellfire was tested on PSP 3000 through Monk character creation and early gameplay at about 30 FPS. Its intro cutscene was choppy, and a full Hellfire playthrough has not yet been tested. PSP 1000/2000/Go are untested but expected to work on the same architecture. See [PLATFORM_PSP.md](../PLATFORM_PSP.md) for details and [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) if you run into issues.
+Diablo gameplay has been tested on PSP 3000 hardware and the PPSSPP emulator at ~30 FPS average. Hellfire was tested on PSP 3000 through Monk character creation and early gameplay at about 30 FPS. Its intro cutscene was choppy, and a full Hellfire playthrough has not yet been tested. PSP 1000/2000/Go are untested; the PSP 1000 has less RAM, so its compatibility is especially uncertain. See [PLATFORM_PSP.md](../PLATFORM_PSP.md) for details and [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) if you run into issues.
 
 </details>
 
