@@ -32,7 +32,7 @@ jobs:
 
       - name: Configure and build DevilutionX for PSP
         run: |
-          docker run --rm             -v "${GITHUB_WORKSPACE}:/work"             -w /work             ghcr.io/pspdev/pspdev:latest             bash -lc '
+          docker run --rm             -v "${GITHUB_WORKSPACE}:/work"             -w /work             ghcr.io/pspdev/pspdev:latest             bash -c '
               set -euxo pipefail
               psp-cmake -S . -B build-psp                 -DCMAKE_BUILD_TYPE=Release                 -DBUILD_PRX=OFF                 -DENC_PRX=OFF                 -DBUILD_ASSETS_MPQ=OFF
               cmake --build build-psp -j"$(nproc)"
