@@ -1,24 +1,56 @@
+name: Build PSP EBOOT
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - psp
+    paths:
+      - "Source/**"
+      - "CMake/**"
+      - "CMakeLists.txt"
+      - "Packaging/**"
+      - ".github/workflows/build-psp.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-psp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out PSP branch
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Pull PSPDEV build environment
+        run: docker pull ghcr.io/pspdev/pspdev:latest
+
       - name: Configure and build DevilutionX for PSP
         run: |
-          docker run --rm \
-            -v "${GITHUB_WORKSPACE}:/work" \
-            -w /work \
-            ghcr.io/pspdev/pspdev:latest \
-            bash -c '
-              set -euxo pipefail
-              psp-cmake -S . -B build-psp \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DBUILD_PRX=OFF \
-                -DENC_PRX=OFF \
-                -DBUILD_ASSETS_MPQ=OFF
-              cmake --build build-psp -j"$(nproc)"
-            '
+          docker run --rm -v "${GITHUB_WORKSPACE}:/work" -w /work ghcr.io/pspdev/pspdev:latest bash -c '
+            set -euxo pipefail
+            export PSPDEV=/usr/local/pspdev
+            export PATH="$PSPDEV/bin:$PATH"
+            command -v psp-cmake
+            psp-cmake -S . -B build-psp \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DBUILD_PRX=OFF \
+              -DENC_PRX=OFF \
+              -DBUILD_ASSETS_MPQ=OFF
+            cmake --build build-psp -j"$(nproc)"
+          '
 
       - name: Verify PSP output
         run: |
           test -f build-psp/EBOOT.PBP
           echo "EBOOT.PBP built successfully:"
           ls -lh build-psp/EBOOT.PBP
+
           if [ -d build-psp/assets ]; then
             echo "Matching assets directory found."
           else
@@ -29,9 +61,11 @@
         run: |
           mkdir -p artifact/DevilutionX
           cp build-psp/EBOOT.PBP artifact/DevilutionX/
+
           if [ -d build-psp/assets ]; then
             cp -a build-psp/assets artifact/DevilutionX/
           fi
+
           cat > artifact/DevilutionX/README-TEST.txt <<'EOF'
           DevilutionX PSP automated test build.
 
