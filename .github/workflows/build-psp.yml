@@ -32,34 +32,65 @@ jobs:
 
       - name: Configure and build DevilutionX for PSP
         run: |
-          docker run --rm -v "${GITHUB_WORKSPACE}:/work" -w /work ghcr.io/pspdev/pspdev:latest bash -c '
-            set -euxo pipefail
-            export PSPDEV=/usr/local/pspdev
-            export PATH="$PSPDEV/bin:$PATH"
-            command -v psp-cmake
-            psp-cmake -S . -B build-psp \
-              -DCMAKE_BUILD_TYPE=Release \
-              -DBUILD_PRX=OFF \
-              -DENC_PRX=OFF \
-              -DBUILD_ASSETS_MPQ=OFF
-            cmake --build build-psp -j"$(nproc)"
-          '
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}:/work" \
+            -w /work \
+            ghcr.io/pspdev/pspdev:latest \
+            bash -c '
+              set -euxo pipefail
+
+              export PSPDEV=/usr/local/pspdev
+              export PATH="$PSPDEV/bin:$PATH"
+
+              echo "PSPDEV: $PSPDEV"
+              command -v psp-cmake
+              command -v psp-g++
+              command -v cmake
+
+              # GitHub owns the checked-out repository while the PSPDEV
+              # container runs as a different user. Allow Git to inspect
+              # the intentionally mounted repository.
+              git config --global --add safe.directory /work
+
+              echo "Git repository:"
+              git status --short
+              git describe --tags --always --dirty || true
+
+              echo "Configuring DevilutionX PSP build..."
+
+              psp-cmake -S . -B build-psp \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DBUILD_PRX=OFF \
+                -DENC_PRX=OFF \
+                -DBUILD_ASSETS_MPQ=OFF
+
+              echo "Building DevilutionX PSP..."
+
+              cmake --build build-psp -j"$(nproc)"
+            '
 
       - name: Verify PSP output
         run: |
+          set -euxo pipefail
+
           test -f build-psp/EBOOT.PBP
+
           echo "EBOOT.PBP built successfully:"
           ls -lh build-psp/EBOOT.PBP
 
           if [ -d build-psp/assets ]; then
-            echo "Matching assets directory found."
+            echo "Matching assets directory found:"
+            du -sh build-psp/assets
           else
             echo "::warning::build-psp/assets was not generated."
           fi
 
-      - name: Prepare test package
+      - name: Prepare PSP test package
         run: |
+          set -euxo pipefail
+
           mkdir -p artifact/DevilutionX
+
           cp build-psp/EBOOT.PBP artifact/DevilutionX/
 
           if [ -d build-psp/assets ]; then
@@ -67,19 +98,40 @@ jobs:
           fi
 
           cat > artifact/DevilutionX/README-TEST.txt <<'EOF'
-          DevilutionX PSP automated test build.
+          DevilutionX PSP automated test build
 
-          Add your own legitimate game data before copying this folder to:
-          ms0:/PSP/GAME/DevilutionX/
+          This package does NOT contain Diablo or Hellfire game data.
 
-          Shareware test:
-            Add spawn.mpq
+          Copy your own legitimate game data into this DevilutionX folder.
 
-          Retail Diablo test:
-            Add DIABDAT.MPQ
+          Shareware:
+            spawn.mpq
 
-          Keep the EBOOT.PBP and assets directory from this same build together.
+          Retail Diablo:
+            DIABDAT.MPQ
+
+          Keep EBOOT.PBP and the assets directory from this build together.
+
+          PSP installation location:
+
+            ms0:/PSP/GAME/DevilutionX/
+
+          Shareware test sequence:
+
+            1. Add spawn.mpq.
+            2. Start DevilutionX.
+            3. Reach the Diablo title screen.
+            4. Press X.
+            5. Confirm the shareware main menu loads.
+            6. Select Single Player.
+            7. Create a Warrior.
+            8. Start a new game.
+            9. Confirm town loads.
+            10. Enter the Cathedral.
           EOF
+
+          echo "Final artifact contents:"
+          find artifact/DevilutionX -maxdepth 2 -type f -print
 
       - name: Upload PSP build
         uses: actions/upload-artifact@v4
