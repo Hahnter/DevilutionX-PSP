@@ -63,7 +63,7 @@ void MainmenuLoad(const char *name)
 		ArtBackgroundWidescreen = LoadOptionalClx("ui_art\\mainmenuw.clx");
 		LoadBackgroundArt("ui_art\\mainmenu");
 	} else {
-		LoadBackgroundArt("ui_art\\swmmenu");
+		LoadBackgroundArt("ui_art\\mainmenu");
 	}
 
 	UiAddBackground(&vecMainMenuDialog);
