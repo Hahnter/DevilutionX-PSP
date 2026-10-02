@@ -160,10 +160,10 @@ void mainmenu_loop()
 {
 	bool done;
 
-	LogVerbose("PSP SHAREWARE DEBUG: entered mainmenu_loop");
-	LogVerbose("PSP SHAREWARE DEBUG: before RefreshMusic");
+	Log("PSP SHAREWARE DEBUG: entered mainmenu_loop");
+	Log("PSP SHAREWARE DEBUG: before RefreshMusic");
 	RefreshMusic();
-	LogVerbose("PSP SHAREWARE DEBUG: after RefreshMusic");
+	Log("PSP SHAREWARE DEBUG: after RefreshMusic");
 	done = false;
 
 	do {
@@ -171,10 +171,10 @@ void mainmenu_loop()
 		if (demo::IsRunning()) {
 			menu = MAINMENU_SINGLE_PLAYER;
 		} else {
-			LogVerbose("PSP SHAREWARE DEBUG: before UiMainMenuDialog");
+			Log("PSP SHAREWARE DEBUG: before UiMainMenuDialog");
 			if (!UiMainMenuDialog(gszProductName, &menu, 30))
 				app_fatal(_("Unable to display mainmenu"));
-			LogVerbose("PSP SHAREWARE DEBUG: after UiMainMenuDialog");
+			Log("PSP SHAREWARE DEBUG: after UiMainMenuDialog");
 		}
 
 		switch (menu) {
