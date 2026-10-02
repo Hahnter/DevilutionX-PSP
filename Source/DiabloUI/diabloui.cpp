@@ -841,26 +841,55 @@ void UiClearScreen()
 
 void UiPollAndRender(std::optional<tl::function_ref<bool(SDL_Event &)>> eventHandler)
 {
+	Log("PSP SHAREWARE DEBUG: UiPollAndRender entered");
+
 	SDL_Event event;
+	Log("PSP SHAREWARE DEBUG: before PollEvent loop");
+
 	while (PollEvent(&event)) {
+		Log("PSP SHAREWARE DEBUG: processing event");
+
 		if (eventHandler && (*eventHandler)(event))
 			continue;
+
+		Log("PSP SHAREWARE DEBUG: before ConvertEventToRenderCoordinates");
 		if (!SDLC_ConvertEventToRenderCoordinates(renderer, &event)) {
 			LogWarn(LogCategory::Application, "SDL_ConvertEventToRenderCoordinates: {}", SDL_GetError());
 			SDL_ClearError();
 		}
-		UiFocusNavigation(&event);
-		UiHandleEvents(&event);
-	}
-	HandleMenuAction(GetMenuHeldUpDownAction());
-	UiRenderListItems();
-	DrawMouse();
-	UiFadeIn();
+		Log("PSP SHAREWARE DEBUG: after ConvertEventToRenderCoordinates");
 
-	// Must happen after at least one call to `UiFadeIn` with non-zero fadeValue.
-	// `UiFadeIn` reinitializes the hardware cursor only for fadeValue > 0.
+		Log("PSP SHAREWARE DEBUG: before UiFocusNavigation");
+		UiFocusNavigation(&event);
+		Log("PSP SHAREWARE DEBUG: after UiFocusNavigation");
+
+		Log("PSP SHAREWARE DEBUG: before UiHandleEvents");
+		UiHandleEvents(&event);
+		Log("PSP SHAREWARE DEBUG: after UiHandleEvents");
+	}
+
+	Log("PSP SHAREWARE DEBUG: after PollEvent loop");
+
+	Log("PSP SHAREWARE DEBUG: before HandleMenuAction");
+	HandleMenuAction(GetMenuHeldUpDownAction());
+	Log("PSP SHAREWARE DEBUG: after HandleMenuAction");
+
+	Log("PSP SHAREWARE DEBUG: before UiRenderListItems");
+	UiRenderListItems();
+	Log("PSP SHAREWARE DEBUG: after UiRenderListItems");
+
+	Log("PSP SHAREWARE DEBUG: before DrawMouse");
+	DrawMouse();
+	Log("PSP SHAREWARE DEBUG: after DrawMouse");
+
+	Log("PSP SHAREWARE DEBUG: before UiFadeIn");
+	UiFadeIn();
+	Log("PSP SHAREWARE DEBUG: after UiFadeIn");
+
+	Log("PSP SHAREWARE DEBUG: before hardware cursor");
 	if (IsHardwareCursor() && fadeValue != 0)
 		SetHardwareCursorVisible(ControlDevice == ControlTypes::KeyboardAndMouse);
+	Log("PSP SHAREWARE DEBUG: after hardware cursor");
 
 #ifdef __3DS__
 	// Keyboard blocks until input is finished
@@ -868,7 +897,11 @@ void UiPollAndRender(std::optional<tl::function_ref<bool(SDL_Event &)>> eventHan
 	ctr_vkbdFlush();
 #endif
 
+	Log("PSP SHAREWARE DEBUG: before discord UpdateMenu");
 	discord_manager::UpdateMenu();
+	Log("PSP SHAREWARE DEBUG: after discord UpdateMenu");
+
+	Log("PSP SHAREWARE DEBUG: UiPollAndRender returning");
 }
 
 namespace {
