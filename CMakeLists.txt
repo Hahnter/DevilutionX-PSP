@@ -278,7 +278,7 @@ endif()
 # referenced (magic_enum's per-enum name tables are the visible casualty: the
 # string_views survive with correct lengths but point at collected storage, so
 # every enum name reads as garbage). Excluded here for the same reason as PS4.
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND NOT PS4 AND NOT AMIGA)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND NOT PS4 AND NOT AMIGA AND NOT PSP)
   add_compile_options("$<$<NOT:$<CONFIG:Debug>>:-ffunction-sections;-fdata-sections>")
   if(APPLE)
     add_link_options("$<$<NOT:$<CONFIG:Debug>>:LINKER:-dead_strip>")
