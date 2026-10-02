@@ -46,6 +46,9 @@ int refreshDelay;
 SDL_Renderer *renderer;
 #ifndef USE_SDL1
 SDLTextureUniquePtr texture;
+#ifdef PSP
+SDLTextureUniquePtr PspRightTexture;
+#endif
 #endif
 
 /** Currently active palette */
