@@ -8,3 +8,4 @@ set(NOEXIT ON)
 
 # Use lower resampling quality for PSP performance.
 set(DEFAULT_AUDIO_RESAMPLING_QUALITY 2)
+set(DEFAULT_PER_PIXEL_LIGHTING false)
