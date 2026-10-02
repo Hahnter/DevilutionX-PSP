@@ -1,0 +1,49 @@
+name: PSP
+
+on:
+  push:
+    branches:
+      - psp-master
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+  pull_request:
+    types: [opened, synchronize]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/pspdev/pspdev:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Configure CMake
+        shell: bash
+        run: >
+          cmake -S. -Bbuild
+          -DCMAKE_TOOLCHAIN_FILE=${PSPDEV}/psp/share/pspdev.cmake
+          -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        shell: bash
+        run: cmake --build build -j $(getconf _NPROCESSORS_ONLN)
+
+      - name: Upload Build
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: devilutionx-psp
+          path: build/
