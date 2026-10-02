@@ -20,6 +20,7 @@
 #include "utils/endian_read.hpp"
 #include "utils/endian_swap.hpp"
 #include "utils/endian_write.hpp"
+#include "utils/log.hpp"
 #include "utils/pcx.hpp"
 
 #ifdef DEBUG_PCX_TO_CL2_SIZE
@@ -62,12 +63,18 @@ bool LoadPcxMeta(AssetHandle &handle, int &width, int &height, uint8_t &bpp)
 
 OptionalOwnedClxSpriteList PcxToClx(AssetHandle &handle, size_t fileSize, int numFramesOrFrameHeight, std::optional<uint8_t> transparentColor, SDL_Color *outPalette)
 {
+#ifdef PSP
+	Log("PSP PCX: begin conversion fileSize={} framesArg={}", fileSize, numFramesOrFrameHeight);
+#endif
 	int width;
 	int height;
 	uint8_t bpp;
 	if (!LoadPcxMeta(handle, width, height, bpp)) {
 		return std::nullopt;
 	}
+#ifdef PSP
+	Log("PSP PCX: metadata width={} height={} bpp={}", width, height, static_cast<unsigned>(bpp));
+#endif
 	assert(bpp == 8);
 
 	unsigned numFrames;
@@ -80,16 +87,27 @@ OptionalOwnedClxSpriteList PcxToClx(AssetHandle &handle, size_t fileSize, int nu
 		numFrames = height / frameHeight;
 	}
 
+#ifdef PSP
+	Log("PSP PCX: numFrames={} frameHeight={}", numFrames, frameHeight);
+#endif
+
 	size_t pixelDataSize = fileSize;
 	if (pixelDataSize <= PcxHeaderSize) {
 		return std::nullopt;
 	}
 	pixelDataSize -= PcxHeaderSize;
 
+#ifdef PSP
+	Log("PSP PCX: allocating fileBuffer bytes={}", pixelDataSize);
+#endif
 	std::unique_ptr<uint8_t[]> fileBuffer { new uint8_t[pixelDataSize] };
 	if (handle.read(fileBuffer.get(), pixelDataSize) == 0) {
 		return std::nullopt;
 	}
+
+#ifdef PSP
+	Log("PSP PCX: fileBuffer read complete");
+#endif
 
 	// CLX header: frame count, frame offset for each frame, file size
 	std::vector<uint8_t> cl2Data;
@@ -98,7 +116,13 @@ OptionalOwnedClxSpriteList PcxToClx(AssetHandle &handle, size_t fileSize, int nu
 	WriteLE32(cl2Data.data(), numFrames);
 
 	// We process the PCX a whole frame at a time because the lines are reversed in CEL.
+#ifdef PSP
+	Log("PSP PCX: allocating frameBuffer bytes={}", static_cast<size_t>(frameHeight) * width);
+#endif
 	auto frameBuffer = std::unique_ptr<uint8_t[]>(new uint8_t[static_cast<size_t>(frameHeight) * width]);
+#ifdef PSP
+	Log("PSP PCX: frameBuffer allocation complete");
+#endif
 
 	const unsigned srcSkip = width % 2;
 	uint8_t *dataPtr = fileBuffer.get();
@@ -184,8 +208,14 @@ OptionalOwnedClxSpriteList PcxToClx(AssetHandle &handle, size_t fileSize, int nu
 	frameBuffer = nullptr;
 	fileBuffer = nullptr;
 
+#ifdef PSP
+	Log("PSP PCX: decode complete clxSize={}", cl2Data.size());
+#endif
 	auto out = std::unique_ptr<uint8_t[]>(new uint8_t[cl2Data.size()]);
 	memcpy(&out[0], cl2Data.data(), cl2Data.size());
+#ifdef PSP
+	Log("PSP PCX: conversion SUCCESS");
+#endif
 #ifdef DEBUG_PCX_TO_CL2_SIZE
 	std::cout << "\t" << pixelDataSize << "\t" << cl2Data.size() << "\t" << std::setprecision(1) << std::fixed << (static_cast<int>(cl2Data.size()) - static_cast<int>(pixelDataSize)) / ((float)pixelDataSize) * 100 << "%" << std::endl;
 #endif
