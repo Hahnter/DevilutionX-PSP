@@ -500,6 +500,15 @@ if(APPLE)
   set(CPACK On)
 endif()
 
+if(PSP)
+  create_pbp_file(
+    TARGET ${BIN_TARGET}
+    TITLE "DevilutionX"
+    VERSION "${PROJECT_VERSION}"
+    OUTPUT_DIR "${CMAKE_BINARY_DIR}"
+  )
+endif()
+
 if(NINTENDO_SWITCH)
   nx_generate_nacp (${BIN_TARGET}.nacp
     NAME    "DevilutionX"
