@@ -3,7 +3,7 @@ name: PSP
 on:
   push:
     branches:
-      - psp-master
+      - upstream-psp
     paths-ignore:
       - '*.md'
       - 'docs/**'
