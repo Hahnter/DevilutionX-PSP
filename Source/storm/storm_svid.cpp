@@ -222,7 +222,7 @@ void UpdatePalette()
 
 bool BlitFrame()
 {
-#ifndef USE_SDL1
+#if !defined(USE_SDL1) && !defined(PSP)
 	if (renderer != nullptr) {
 		if (
 #ifdef USE_SDL3
@@ -409,7 +409,7 @@ bool SVidPlayBegin(const char *filename, int flags)
 	SVidFrameLength = 100000 / static_cast<uint32_t>(Smacker_GetFrameRate(SVidHandle));
 	Smacker_GetFrameSize(SVidHandle, SVidWidth, SVidHeight);
 
-#ifndef USE_SDL1
+#if !defined(USE_SDL1) && !defined(PSP)
 	if (renderer != nullptr) {
 		const int renderWidth = static_cast<int>(SVidWidth);
 		const int renderHeight = static_cast<int>(SVidHeight);
@@ -546,7 +546,7 @@ void SVidPlayEnd()
 	SVidSurface = nullptr;
 	SVidFrameBuffer = nullptr;
 
-#ifndef USE_SDL1
+#if !defined(USE_SDL1) && !defined(PSP)
 	if (renderer != nullptr) {
 		texture = SDLWrap::CreateTexture(renderer, DEVILUTIONX_DISPLAY_TEXTURE_FORMAT, SDL_TEXTUREACCESS_STREAMING, gnScreenWidth, gnScreenHeight);
 		if (
