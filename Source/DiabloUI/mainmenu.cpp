@@ -107,16 +107,33 @@ void mainmenu_restart_repintro()
 
 bool UiMainMenuDialog(const char *name, _mainmenu_selections *pdwResult, int attractTimeOut)
 {
-	MainMenuResult = MAINMENU_NONE;
-	while (MainMenuResult == MAINMENU_NONE) {
-		mainmenu_attract_time_out = attractTimeOut;
-		MainmenuLoad(name);
+	        MainMenuResult = MAINMENU_NONE;
+        while (MainMenuResult == MAINMENU_NONE) {
+                mainmenu_attract_time_out = attractTimeOut;
 
-		mainmenu_restart_repintro(); // for automatic starts
+                Log("PSP SHAREWARE DEBUG: before MainmenuLoad");
+                MainmenuLoad(name);
+                Log("PSP SHAREWARE DEBUG: after MainmenuLoad");
 
-		while (MainMenuResult == MAINMENU_NONE) {
-			UiClearScreen();
-			UiPollAndRender();
+                mainmenu_restart_repintro(); // for automatic starts
+                Log("PSP SHAREWARE DEBUG: after mainmenu_restart_repintro");
+
+                bool firstRender = true;
+                while (MainMenuResult == MAINMENU_NONE) {
+                        if (firstRender)
+                                Log("PSP SHAREWARE DEBUG: before first UiClearScreen");
+
+                        UiClearScreen();
+
+                        if (firstRender)
+                                Log("PSP SHAREWARE DEBUG: before first UiPollAndRender");
+
+                        UiPollAndRender();
+
+                        if (firstRender) {
+                                Log("PSP SHAREWARE DEBUG: after first UiPollAndRender");
+                                firstRender = false;
+                        }
 			if (SDL_GetTicks() >= dwAttractTicks && (HaveIntro() || gbIsHellfire)) {
 				MainMenuResult = MAINMENU_ATTRACT_MODE;
 			}
