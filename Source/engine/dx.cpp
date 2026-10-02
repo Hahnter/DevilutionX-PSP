@@ -314,8 +314,37 @@ void RenderPresent()
 #else
 		if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) <= -1) ErrSdl();
 		if (SDL_RenderClear(renderer) <= -1) ErrSdl();
+#ifdef PSP
+		const auto *pixels = static_cast<const std::uint8_t *>(surface->pixels);
+		const int firstTextureWidth = std::min<int>(gnScreenWidth, PspFirstTextureWidth);
+		const auto *rightPixels = pixels + firstTextureWidth * surface->format->BytesPerPixel;
+
+		if (SDL_UpdateTexture(texture.get(), nullptr, pixels, surface->pitch) <= -1)
+			ErrSdl();
+
+		if (PspRightTexture != nullptr) {
+			if (SDL_UpdateTexture(PspRightTexture.get(), nullptr, rightPixels, surface->pitch) <= -1)
+				ErrSdl();
+
+			// PSPDEV's SDL2 PSP renderer ignores the logical viewport offset when
+			// drawing textures. Apply it here so the image is positioned correctly.
+			SDL_Rect viewport;
+			SDL_RenderGetViewport(renderer, &viewport);
+
+			const SDL_Rect leftRect = { viewport.x, viewport.y, firstTextureWidth, gnScreenHeight };
+			const SDL_Rect rightRect = { viewport.x + firstTextureWidth, viewport.y, gnScreenWidth - firstTextureWidth, gnScreenHeight };
+
+			if (SDL_RenderCopy(renderer, texture.get(), nullptr, &leftRect) <= -1
+			    || SDL_RenderCopy(renderer, PspRightTexture.get(), nullptr, &rightRect) <= -1)
+				ErrSdl();
+		} else {
+			if (SDL_RenderCopy(renderer, texture.get(), nullptr, nullptr) <= -1)
+				ErrSdl();
+		}
+#else
 		if (SDL_UpdateTexture(texture.get(), nullptr, surface->pixels, surface->pitch) <= -1) ErrSdl();
 		if (SDL_RenderCopy(renderer, texture.get(), nullptr, nullptr) <= -1) ErrSdl();
+#endif
 #endif
 
 		if (ControlMode == ControlTypes::VirtualGamepad) {
