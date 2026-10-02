@@ -733,9 +733,9 @@ void ReinitializeTexture()
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, quality.c_str());
 #ifdef PSP
 	const int firstTextureWidth = std::min<int>(gnScreenWidth, PspFirstTextureWidth);
-	texture = SDLWrap::CreateTexture(renderer, DEVILUTIONX_DISPLAY_TEXTURE_FORMAT, SDL_TEXTUREACCESS_STREAMING, firstTextureWidth, gnScreenHeight);
+	texture = SDLWrap::CreateTexture(renderer, SDL_PIXELFORMAT_ABGR1555, SDL_TEXTUREACCESS_STREAMING, firstTextureWidth, gnScreenHeight);
 	if (gnScreenWidth > PspFirstTextureWidth)
-		PspRightTexture = SDLWrap::CreateTexture(renderer, DEVILUTIONX_DISPLAY_TEXTURE_FORMAT, SDL_TEXTUREACCESS_STREAMING, gnScreenWidth - PspFirstTextureWidth, gnScreenHeight);
+		PspRightTexture = SDLWrap::CreateTexture(renderer, SDL_PIXELFORMAT_ABGR1555, SDL_TEXTUREACCESS_STREAMING, gnScreenWidth - PspFirstTextureWidth, gnScreenHeight);
 #else
 	texture = SDLWrap::CreateTexture(renderer, DEVILUTIONX_DISPLAY_TEXTURE_FORMAT, SDL_TEXTUREACCESS_STREAMING, gnScreenWidth, gnScreenHeight);
 #endif
@@ -785,7 +785,11 @@ void ReinitializeRenderer()
 #ifdef USE_SDL3
 			renderer = SDL_CreateRenderer(ghMainWnd, nullptr);
 #else
+#ifdef PSP
+			renderer = SDL_CreateRenderer(ghMainWnd, -1, SDL_RENDERER_ACCELERATED);
+#else
 			renderer = SDL_CreateRenderer(ghMainWnd, -1, 0);
+#endif
 #endif
 			if (renderer == nullptr) {
 				ErrSdl();
