@@ -145,6 +145,9 @@ void dx_cleanup()
 	RendererTextureSurface = nullptr;
 #ifndef USE_SDL1
 	texture = nullptr;
+#ifdef PSP
+	PspRightTexture = nullptr;
+#endif
 	FreeVirtualGamepadTextures();
 	if (*GetOptions().Graphics.upscale)
 		SDL_DestroyRenderer(renderer);
