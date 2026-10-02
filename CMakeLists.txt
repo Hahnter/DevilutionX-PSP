@@ -503,9 +503,10 @@ endif()
 if(PSP)
   create_pbp_file(
     TARGET ${BIN_TARGET}
-    TITLE "DevilutionX"
-    VERSION "${PROJECT_VERSION}"
-    OUTPUT_DIR "${CMAKE_BINARY_DIR}"
+    ICON_PATH "${PROJECT_SOURCE_DIR}/Packaging/psp/icon.png"
+    BACKGROUND_PATH "${PROJECT_SOURCE_DIR}/Packaging/psp/background.png"
+    PREVIEW_PATH NULL
+    TITLE ${PROJECT_NAME}
   )
 endif()
 
