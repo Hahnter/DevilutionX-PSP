@@ -222,7 +222,8 @@ void UpdatePalette()
 
 bool BlitFrame()
 {
-#if !defined(USE_SDL1) && !defined(PSP)
+#ifndef USE_SDL1
+#ifndef PSP
 	if (renderer != nullptr) {
 		if (
 #ifdef USE_SDL3
@@ -234,7 +235,9 @@ bool BlitFrame()
 			Log("{}", SDL_GetError());
 			return false;
 		}
-	} else
+		}
+	else
+#endif
 #endif
 	{
 		SDL_Surface *outputSurface = GetOutputSurface();
@@ -409,7 +412,8 @@ bool SVidPlayBegin(const char *filename, int flags)
 	SVidFrameLength = 100000 / static_cast<uint32_t>(Smacker_GetFrameRate(SVidHandle));
 	Smacker_GetFrameSize(SVidHandle, SVidWidth, SVidHeight);
 
-#if !defined(USE_SDL1) && !defined(PSP)
+#ifndef USE_SDL1
+#ifndef PSP
 	if (renderer != nullptr) {
 		const int renderWidth = static_cast<int>(SVidWidth);
 		const int renderHeight = static_cast<int>(SVidHeight);
@@ -438,6 +442,7 @@ bool SVidPlayBegin(const char *filename, int flags)
 		}
 	}
 #endif
+#endif // PSP
 #else
 	TrySetVideoModeToSVidForSDL1();
 #endif
@@ -546,7 +551,8 @@ void SVidPlayEnd()
 	SVidSurface = nullptr;
 	SVidFrameBuffer = nullptr;
 
-#if !defined(USE_SDL1) && !defined(PSP)
+#ifndef USE_SDL1
+#ifndef PSP
 	if (renderer != nullptr) {
 		texture = SDLWrap::CreateTexture(renderer, DEVILUTIONX_DISPLAY_TEXTURE_FORMAT, SDL_TEXTUREACCESS_STREAMING, gnScreenWidth, gnScreenHeight);
 		if (
@@ -573,6 +579,7 @@ void SVidPlayEnd()
 		}
 	}
 #endif
+#endif // PSP
 #else
 	if (IsSVidVideoMode) {
 		SetVideoModeToPrimary(IsFullScreen(), gnScreenWidth, gnScreenHeight);
