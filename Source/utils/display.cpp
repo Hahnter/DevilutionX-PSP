@@ -720,7 +720,7 @@ void ReinitializeTexture()
 	auto quality = StrCat(static_cast<int>(*GetOptions().Graphics.scaleQuality));
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, quality.c_str());
 #ifdef PSP
-	const int firstTextureWidth = std::min(gnScreenWidth, PspFirstTextureWidth);
+	const int firstTextureWidth = std::min<int>(gnScreenWidth, PspFirstTextureWidth);
 	texture = SDLWrap::CreateTexture(renderer, DEVILUTIONX_DISPLAY_TEXTURE_FORMAT, SDL_TEXTUREACCESS_STREAMING, firstTextureWidth, gnScreenHeight);
 	if (gnScreenWidth > PspFirstTextureWidth)
 		PspRightTexture = SDLWrap::CreateTexture(renderer, DEVILUTIONX_DISPLAY_TEXTURE_FORMAT, SDL_TEXTUREACCESS_STREAMING, gnScreenWidth - PspFirstTextureWidth, gnScreenHeight);
