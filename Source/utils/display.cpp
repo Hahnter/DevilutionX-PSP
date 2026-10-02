@@ -699,6 +699,10 @@ void ReinitializeTexture()
 {
 	if (texture)
 		texture.reset();
+#ifdef PSP
+	if (PspRightTexture)
+		PspRightTexture.reset();
+#endif
 
 	if (renderer == nullptr)
 		return;
@@ -715,7 +719,14 @@ void ReinitializeTexture()
 #else
 	auto quality = StrCat(static_cast<int>(*GetOptions().Graphics.scaleQuality));
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, quality.c_str());
+#ifdef PSP
+	const int firstTextureWidth = std::min(gnScreenWidth, PspFirstTextureWidth);
+	texture = SDLWrap::CreateTexture(renderer, DEVILUTIONX_DISPLAY_TEXTURE_FORMAT, SDL_TEXTUREACCESS_STREAMING, firstTextureWidth, gnScreenHeight);
+	if (gnScreenWidth > PspFirstTextureWidth)
+		PspRightTexture = SDLWrap::CreateTexture(renderer, DEVILUTIONX_DISPLAY_TEXTURE_FORMAT, SDL_TEXTUREACCESS_STREAMING, gnScreenWidth - PspFirstTextureWidth, gnScreenHeight);
+#else
 	texture = SDLWrap::CreateTexture(renderer, DEVILUTIONX_DISPLAY_TEXTURE_FORMAT, SDL_TEXTUREACCESS_STREAMING, gnScreenWidth, gnScreenHeight);
+#endif
 #endif
 }
 
