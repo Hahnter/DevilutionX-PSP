@@ -71,13 +71,7 @@ void MainmenuLoad(const char *name)
 		ArtBackgroundWidescreen = LoadOptionalClx("ui_art\\mainmenuw.clx");
 		LoadBackgroundArt("ui_art\\mainmenu");
 	} else {
-#ifdef PSP
-		// Hardware diagnostic: isolate the shareware menu PCX conversion.
-		// UiAddBackground handles the absent art; the menu stays navigable.
-		Log("PSP shareware diagnostic: skip ui_art\\swmmenu.pcx");
-#else
 		LoadBackgroundArt("ui_art\\swmmenu");
-#endif
 	}
 
 	UiAddBackground(&vecMainMenuDialog);
