@@ -20,16 +20,11 @@
 #include "engine/load_clx.hpp"
 #include "engine/load_pcx.hpp"
 #include "engine/point.hpp"
-#include "game_mode.hpp"
 #include "utils/algorithm/container.hpp"
 #include "utils/language.h"
 #include "utils/sdl_compat.h"
 #include "utils/sdl_geometry.h"
 #include "utils/ui_fwd.h"
-#ifdef PSP
-#include <pspsysmem.h>
-#include "utils/log.hpp"
-#endif
 
 namespace devilution {
 namespace {
@@ -56,10 +51,6 @@ void TitleFree()
 	DiabloTitleLogo = std::nullopt;
 
 	vecTitleScreen.clear();
-#ifdef PSP
-	if (gbIsSpawn && !gbIsHellfire)
-		Log("PSP shareware heap after title cleanup: free={} largest={}", sceKernelTotalFreeMemSize(), sceKernelMaxFreeMemSize());
-#endif
 }
 
 } // namespace

@@ -20,6 +20,13 @@
 #ifdef NXDK
 #include <nxdk/mount.h>
 #endif
+#ifdef PSP
+#include <cstdio>
+#include <pspdebug.h>
+#include <pspiofilemgr.h>
+#include <pspthreadman.h>
+#endif
+
 #ifdef GPERF_HEAP_MAIN
 #include <gperftools/heap-profiler.h>
 #endif
@@ -33,8 +40,38 @@ extern "C" const char *__asan_default_options() // NOLINT(bugprone-reserved-iden
 }
 #endif
 
+#ifdef PSP
+namespace {
+void PspExceptionHandler(PspDebugRegBlock *regs)
+{
+	// Use a fixed buffer and path: the C++ heap may be damaged at the fault.
+	char report[256];
+	const int length = std::snprintf(report, sizeof(report),
+	    "DevilutionX PSP exception\nEPC=%08X RA=%08X BadVAddr=%08X Cause=%08X Thread=%08X\n",
+	    static_cast<unsigned>(regs->epc), static_cast<unsigned>(regs->r[31]),
+	    static_cast<unsigned>(regs->badvaddr), static_cast<unsigned>(regs->cause),
+	    static_cast<unsigned>(sceKernelGetThreadId()));
+	if (length > 0) {
+		const SceUID file = sceIoOpen("ms0:/devx-crash.txt", PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777);
+		if (file >= 0) {
+			const int bytes = length < static_cast<int>(sizeof(report)) ? length : static_cast<int>(sizeof(report)) - 1;
+			sceIoWrite(file, report, bytes);
+			sceIoClose(file);
+		}
+	}
+	pspDebugScreenInit();
+	pspDebugDumpException(regs);
+	for (;;)
+		sceKernelDelayThread(1000000);
+}
+} // namespace
+#endif
+
 extern "C" int main(int argc, char **argv)
 {
+#ifdef PSP
+	pspDebugInstallErrorHandler(PspExceptionHandler);
+#endif
 #ifdef __SWITCH__
 	switch_romfs_init();
 	switch_enable_network();

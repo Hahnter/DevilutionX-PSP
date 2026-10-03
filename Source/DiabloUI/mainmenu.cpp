@@ -20,10 +20,6 @@
 #include "game_mode.hpp"
 #include "utils/language.h"
 #include "utils/ui_fwd.h"
-#ifdef PSP
-#include <pspsysmem.h>
-#include "utils/log.hpp"
-#endif
 
 namespace devilution {
 namespace {
@@ -54,10 +50,6 @@ void MainmenuEsc()
 
 void MainmenuLoad(const char *name)
 {
-#ifdef PSP
-	if (gbIsSpawn && !gbIsHellfire)
-		Log("PSP shareware heap at MainmenuLoad entry: free={} largest={}", sceKernelTotalFreeMemSize(), sceKernelMaxFreeMemSize());
-#endif
 	vecMenuItems.push_back(std::make_unique<UiListItem>(_("Single Player"), MAINMENU_SINGLE_PLAYER));
 	vecMenuItems.push_back(std::make_unique<UiListItem>(_("Multi Player"), MAINMENU_MULTIPLAYER));
 	vecMenuItems.push_back(std::make_unique<UiListItem>(_("Settings"), MAINMENU_SETTINGS));
@@ -118,34 +110,11 @@ bool UiMainMenuDialog(const char *name, _mainmenu_selections *pdwResult, int att
 	MainMenuResult = MAINMENU_NONE;
 	while (MainMenuResult == MAINMENU_NONE) {
 		mainmenu_attract_time_out = attractTimeOut;
-#ifdef PSP
-		if (gbIsSpawn && !gbIsHellfire)
-			Log("PSP shareware heap before MainmenuLoad: free={} largest={}", sceKernelTotalFreeMemSize(), sceKernelMaxFreeMemSize());
-#endif
 		MainmenuLoad(name);
-#ifdef PSP
-		if (gbIsSpawn && !gbIsHellfire)
-			Log("PSP shareware heap after MainmenuLoad: free={} largest={}", sceKernelTotalFreeMemSize(), sceKernelMaxFreeMemSize());
-#endif
 		mainmenu_restart_repintro(); // for automatic starts
-#ifdef PSP
-		bool traceFirstSharewareFrame = gbIsSpawn && !gbIsHellfire;
-#endif
 		while (MainMenuResult == MAINMENU_NONE) {
-#ifdef PSP
-			if (traceFirstSharewareFrame) Log("PSP shareware first frame: before UiClearScreen");
-#endif
 			UiClearScreen();
-#ifdef PSP
-			if (traceFirstSharewareFrame) Log("PSP shareware first frame: before UiPollAndRender");
-#endif
 			UiPollAndRender();
-#ifdef PSP
-			if (traceFirstSharewareFrame) {
-				Log("PSP shareware first frame: after UiPollAndRender");
-				traceFirstSharewareFrame = false;
-			}
-#endif
 			if (SDL_GetTicks() >= dwAttractTicks && (HaveIntro() || gbIsHellfire))
 				MainMenuResult = MAINMENU_ATTRACT_MODE;
 		}
