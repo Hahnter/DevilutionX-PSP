@@ -50,10 +50,6 @@ void MainmenuEsc()
 
 void MainmenuLoad(const char *name)
 {
-#ifdef PSP
-	if (gbIsSpawn && !gbIsHellfire)
-		Log("PSP shareware diagnostic: entered MainmenuLoad");
-#endif
 	vecMenuItems.push_back(std::make_unique<UiListItem>(_("Single Player"), MAINMENU_SINGLE_PLAYER));
 	vecMenuItems.push_back(std::make_unique<UiListItem>(_("Multi Player"), MAINMENU_MULTIPLAYER));
 	vecMenuItems.push_back(std::make_unique<UiListItem>(_("Settings"), MAINMENU_SETTINGS));
@@ -63,10 +59,6 @@ void MainmenuLoad(const char *name)
 	vecMenuItems.push_back(std::make_unique<UiListItem>(gbIsHellfire ? _("Exit Hellfire") : _("Exit Diablo"), MAINMENU_EXIT_DIABLO));
 #endif
 
-#ifdef PSP
-	if (gbIsSpawn && !gbIsHellfire)
-		Log("PSP shareware diagnostic: menu items ready");
-#endif
 	if (!gbIsSpawn || gbIsHellfire) {
 		ArtBackgroundWidescreen = LoadOptionalClx("ui_art\\mainmenuw.clx");
 		LoadBackgroundArt("ui_art\\mainmenu");
@@ -115,36 +107,16 @@ void mainmenu_restart_repintro()
 
 bool UiMainMenuDialog(const char *name, _mainmenu_selections *pdwResult, int attractTimeOut)
 {
-	        MainMenuResult = MAINMENU_NONE;
-        while (MainMenuResult == MAINMENU_NONE) {
-                mainmenu_attract_time_out = attractTimeOut;
-
-                Log("PSP SHAREWARE DEBUG: before MainmenuLoad");
-                MainmenuLoad(name);
-                Log("PSP SHAREWARE DEBUG: after MainmenuLoad");
-
-                mainmenu_restart_repintro(); // for automatic starts
-                Log("PSP SHAREWARE DEBUG: after mainmenu_restart_repintro");
-
-                bool firstRender = true;
-                while (MainMenuResult == MAINMENU_NONE) {
-                        if (firstRender)
-                                Log("PSP SHAREWARE DEBUG: before first UiClearScreen");
-
-                        UiClearScreen();
-
-                        if (firstRender)
-                                Log("PSP SHAREWARE DEBUG: before first UiPollAndRender");
-
-                        UiPollAndRender();
-
-                        if (firstRender) {
-                                Log("PSP SHAREWARE DEBUG: after first UiPollAndRender");
-                                firstRender = false;
-                        }
-			if (SDL_GetTicks() >= dwAttractTicks && (HaveIntro() || gbIsHellfire)) {
+	MainMenuResult = MAINMENU_NONE;
+	while (MainMenuResult == MAINMENU_NONE) {
+		mainmenu_attract_time_out = attractTimeOut;
+		MainmenuLoad(name);
+		mainmenu_restart_repintro(); // for automatic starts
+		while (MainMenuResult == MAINMENU_NONE) {
+			UiClearScreen();
+			UiPollAndRender();
+			if (SDL_GetTicks() >= dwAttractTicks && (HaveIntro() || gbIsHellfire))
 				MainMenuResult = MAINMENU_ATTRACT_MODE;
-			}
 		}
 
 		MainmenuFree();
