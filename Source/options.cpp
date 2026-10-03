@@ -1629,6 +1629,10 @@ std::vector<OptionEntryBase *> ModOptions::GetEntries()
 {
 	std::vector<OptionEntryBase *> optionEntries;
 	for (auto &modEntry : GetModEntries()) {
+#ifdef PSP
+		if (modEntry.name == "hf")
+			continue;
+#endif
 		optionEntries.emplace_back(&modEntry.enabled);
 	}
 	return optionEntries;
