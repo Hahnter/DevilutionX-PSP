@@ -1059,13 +1059,6 @@ void PrivSoundInit(uint8_t bLoadMask)
 		return;
 	}
 
-#ifdef PSP
-	// Keep menu sounds ready, but load shareware gameplay sounds when first used.
-	// Retaining every decoder during startup can exhaust PSP memory.
-	if (gbIsSpawn && (bLoadMask & sfx_UI) == 0)
-		return;
-#endif
-
 	for (auto &sfx : sgSFX) {
 		if (sfx.bFlags == 0 || sfx.pSnd != nullptr) {
 			continue;
