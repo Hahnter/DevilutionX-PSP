@@ -47,10 +47,10 @@ jobs:
           echo "=== PSP build executables ==="
           find build -type f \( -name "devilutionx" -o -name "*.elf" -o -name "*.map" \) -print
 
-          DEBUG_ELF="$(find build -type f -name 'devilutionx' -print -quit)"
+          DEBUG_ELF="build/devilutionx-debug.elf"
 
-          if [ -z "$DEBUG_ELF" ]; then
-            echo "ERROR: Could not find the PSP devilutionx ELF."
+          if [ ! -f "$DEBUG_ELF" ]; then
+            echo "ERROR: Could not find the PSP debug ELF."
             exit 1
           fi
 
@@ -68,7 +68,10 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: devilutionx-psp
-          path: build/
+          path: |
+            build/EBOOT.PBP
+            build/assets/
+            build/mods/
 
       - name: Upload PSP Debug ELF
         if: ${{ !env.ACT }}

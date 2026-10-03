@@ -501,6 +501,20 @@ if(APPLE)
 endif()
 
 if(PSP)
+  if(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    if(NOT CMAKE_STRIP)
+      message(FATAL_ERROR "PSP RelWithDebInfo packaging requires a target strip tool")
+    endif()
+    # Keep an unstripped ELF for symbolication, but do not embed its debug
+    # sections in the EBOOT used on a memory-constrained PSP.
+    add_custom_command(
+      TARGET ${BIN_TARGET} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:${BIN_TARGET}>
+        "${CMAKE_CURRENT_BINARY_DIR}/devilutionx-debug.elf"
+      COMMAND ${CMAKE_STRIP} --strip-debug $<TARGET_FILE:${BIN_TARGET}>
+      VERBATIM)
+  endif()
   create_pbp_file(
     TARGET ${BIN_TARGET}
     ICON_PATH "${PROJECT_SOURCE_DIR}/Packaging/psp/icon.png"
