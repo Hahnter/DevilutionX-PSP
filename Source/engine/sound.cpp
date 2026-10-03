@@ -94,8 +94,14 @@ bool LoadAudioFile(const char *path, bool stream, bool errorDialog, SoundSample 
 				ErrDlg("Failed to read file", StrCat(foundPath, ": ", SDL_GetError()), __FILE__, __LINE__);
 			return false;
 		}
+#ifdef PSP
+		Log("PSP audio buffered load: path={} decoder={} bytes={}", foundPath, isMp3 ? "mp3" : "wav", size);
+#endif
 		const int error = result.SetChunk(waveFile, size, isMp3);
 		if (error != 0) {
+#ifdef PSP
+			LogError(LogCategory::Audio, "PSP audio buffered load failed: path={} decoder={} bytes={} error={}", foundPath, isMp3 ? "mp3" : "wav", size, SDL_GetError());
+#endif
 			if (errorDialog)
 				ErrSdl();
 			return false;
