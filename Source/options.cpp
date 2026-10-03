@@ -452,19 +452,34 @@ std::vector<OptionEntryBase *> GameModeOptions::GetEntries()
 
 StartUpOptions::StartUpOptions()
     : OptionCategoryBase("StartUp", N_("Start Up"), N_("Start Up Settings"))
-    , diabloIntro("Diablo Intro", OptionEntryFlags::OnlyDiablo, N_("Intro"), N_("Shown Intro cinematic."), StartUpIntro::Once,
+    , diabloIntro("Diablo Intro", OptionEntryFlags::OnlyDiablo, N_("Intro"), N_("Shown Intro cinematic."),
+#ifdef PSP
+          StartUpIntro::Off,
+#else
+          StartUpIntro::Once,
+#endif
           {
               { StartUpIntro::Off, N_("OFF") },
               // Once is missing, because we want to hide it from UI-Settings.
               { StartUpIntro::On, N_("ON") },
           })
-    , hellfireIntro("Hellfire Intro", OptionEntryFlags::OnlyHellfire, N_("Intro"), N_("Shown Intro cinematic."), StartUpIntro::Once,
+    , hellfireIntro("Hellfire Intro", OptionEntryFlags::OnlyHellfire, N_("Intro"), N_("Shown Intro cinematic."),
+#ifdef PSP
+          StartUpIntro::Off,
+#else
+          StartUpIntro::Once,
+#endif
           {
               { StartUpIntro::Off, N_("OFF") },
               // Once is missing, because we want to hide it from UI-Settings.
               { StartUpIntro::On, N_("ON") },
           })
-    , splash("Splash", OptionEntryFlags::None, N_("Splash"), N_("Shown splash screen."), StartUpSplash::LogoAndTitleDialog,
+    , splash("Splash", OptionEntryFlags::None, N_("Splash"), N_("Shown splash screen."),
+#ifdef PSP
+          StartUpSplash::TitleDialog,
+#else
+          StartUpSplash::LogoAndTitleDialog,
+#endif
           {
               { StartUpSplash::LogoAndTitleDialog, N_("Logo and Title Screen") },
               { StartUpSplash::TitleDialog, N_("Title Screen") },
@@ -769,7 +784,12 @@ GraphicsOptions::GraphicsOptions()
           true
 #endif
           )
-    , scaleQuality("Scaling Quality", OptionEntryFlags::None, N_("Scaling Quality"), N_("Enables optional filters to the output image when upscaling."), ScalingQuality::AnisotropicFiltering,
+    , scaleQuality("Scaling Quality", OptionEntryFlags::None, N_("Scaling Quality"), N_("Enables optional filters to the output image when upscaling."),
+#ifdef PSP
+          ScalingQuality::BilinearFiltering,
+#else
+          ScalingQuality::AnisotropicFiltering,
+#endif
           {
               { ScalingQuality::NearestPixel, N_("Nearest Pixel") },
               { ScalingQuality::BilinearFiltering, N_("Bilinear") },
@@ -799,7 +819,13 @@ GraphicsOptions::GraphicsOptions()
               { FrameRateControl::CPUSleep, N_("Limit FPS") },
           })
     , brightness("Brightness Correction", OptionEntryFlags::Invisible, "Brightness Correction", "Brightness correction level.", 0)
-    , zoom("Zoom", OptionEntryFlags::None, N_("Zoom"), N_("Zoom on when enabled."), false)
+    , zoom("Zoom", OptionEntryFlags::None, N_("Zoom"), N_("Zoom on when enabled."),
+#ifdef PSP
+          true
+#else
+          false
+#endif
+          )
     , perPixelLighting("Per-pixel Lighting", OptionEntryFlags::None, N_("Per-pixel Lighting"), N_("Subtile lighting for smoother light gradients."), DEFAULT_PER_PIXEL_LIGHTING)
     , colorCycling("Color Cycling", OptionEntryFlags::None, N_("Color Cycling"), N_("Color cycling effect used for water, lava, and acid animation."), true)
     , alternateNestArt("Alternate nest art", OptionEntryFlags::OnlyHellfire | OptionEntryFlags::CantChangeInGame, N_("Alternate nest art"), N_("The game will use an alternative palette for Hellfire’s nest tileset."), false)
