@@ -501,7 +501,7 @@ if(APPLE)
 endif()
 
 if(PSP)
-  target_link_libraries(${BIN_TARGET} PRIVATE pspdebug)
+  target_link_libraries(${BIN_TARGET} PRIVATE pspdebug pspdisplay pspge pspkernel)
   if(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     if(NOT CMAKE_STRIP)
       message(FATAL_ERROR "PSP RelWithDebInfo packaging requires a target strip tool")
