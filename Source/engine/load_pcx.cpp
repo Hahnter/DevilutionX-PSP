@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#include <string_view>
 #include <utility>
 
 #ifdef DEBUG_PCX_TO_CL2_SIZE
@@ -63,16 +64,29 @@ OptionalOwnedClxSpriteList LoadPcxSpriteList(const char *filename, int numFrames
 	return result;
 #else
 	size_t fileSize;
+#ifdef PSP
+	const bool traceSharewareMenu = std::string_view(filename) == "ui_art\\swmmenu";
+	if (traceSharewareMenu)
+		Log("PSP PCX asset: opening {}", path);
+#endif
 	AssetHandle handle = OpenAsset(path, fileSize);
 	if (!handle.ok()) {
 		if (logError)
 			LogError("Missing file: {}", path);
 		return std::nullopt;
 	}
+#ifdef PSP
+	if (traceSharewareMenu)
+		Log("PSP PCX asset: opened {} bytes={}", path, fileSize);
+#endif
 #ifdef DEBUG_PCX_TO_CL2_SIZE
 	std::cout << filename;
 #endif
 	OptionalOwnedClxSpriteList result = PcxToClx(handle, fileSize, numFramesOrFrameHeight, transparentColor, outPalette);
+#ifdef PSP
+	if (traceSharewareMenu)
+		Log("PSP PCX asset: conversion {} for {}", result ? "completed" : "failed", path);
+#endif
 	if (!result)
 		return std::nullopt;
 	return result;

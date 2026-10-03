@@ -184,13 +184,6 @@ void PrivSoundInit(uint8_t bLoadMask)
 			continue;
 		}
 
-#ifdef PSP
-		// Diagnostic: do not retain the two MP3 UI sound decoders before the
-		// shareware main menu on real PSP. Gameplay sounds stay lazy-loaded.
-		if (gbIsSpawn && (sfx.bFlags & sfx_UI) != 0)
-			continue;
-#endif
-
 		sfx.pSnd = sound_file_load(sfx.pszName.c_str());
 	}
 }
