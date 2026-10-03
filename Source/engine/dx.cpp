@@ -162,6 +162,12 @@ void CreateBackBuffer()
 		PalSurface = GetOutputSurface();
 		RenderDirectlyToOutputSurface = true;
 	} else {
+#ifdef PSP
+		// Release the old 8-bit buffer before allocating a wider one when
+		// changing the PSP resolution from the menu.
+		PinnedPalSurface = nullptr;
+		PalSurface = nullptr;
+#endif
 		PinnedPalSurface = SDLWrap::CreateRGBSurfaceWithFormat(
 		    /*flags=*/0,
 		    /*width=*/gnScreenWidth,

@@ -148,8 +148,9 @@ Size GetPreferredWindowSize()
 	Size windowSize = forceResolution.width != 0 ? forceResolution : *GetOptions().Graphics.resolution;
 
 #ifdef PSP
-	// Keep the physical SDL window at the PSP resolution. The game and its
-	// 640x480 UI are rendered into a separate logical surface below.
+	// Keep the physical SDL window at the PSP resolution. The selected
+	// logical viewport determines whether the image has side bars or fills it.
+	const Size logicalSize = windowSize == PspWidescreenLogicalSize ? PspWidescreenLogicalSize : PspStandardLogicalSize;
 	windowSize = { 480, 272 };
 #else
 #ifndef USE_SDL1
@@ -160,7 +161,7 @@ Size GetPreferredWindowSize()
 #endif
 
 #ifdef PSP
-	AdjustToScreenGeometry({ 640, 480 });
+	AdjustToScreenGeometry(logicalSize);
 #else
 	AdjustToScreenGeometry(windowSize);
 #endif
@@ -196,6 +197,16 @@ void UpdateAvailableResolutions()
 	}
 #endif
 	GraphicsOptions &graphicsOptions = GetOptions().Graphics;
+
+#ifdef PSP
+	// The PSP's physical resolution never changes. Only expose the two
+	// supported logical viewports in the Resolution setting.
+	graphicsOptions.resolution.setAvailableResolutions({
+	    { PspStandardLogicalSize, "640x480 (4:3)" },
+	    { PspWidescreenLogicalSize, "870x493 (16:9)" },
+	});
+	return;
+#endif
 
 	std::vector<Size> sizes;
 	const float scaleFactor = GetDpiScalingFactor();
@@ -819,6 +830,10 @@ void ReinitializeRenderer()
 		}
 #endif
 
+#ifdef PSP
+		// Do not keep both viewport sizes in memory during a menu change.
+		RendererTextureSurface = nullptr;
+#endif
 		ReinitializeTexture();
 
 #ifdef USE_SDL3
