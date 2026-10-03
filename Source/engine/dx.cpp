@@ -329,13 +329,10 @@ void RenderPresent()
 			if (SDL_UpdateTexture(PspRightTexture.get(), nullptr, rightPixels, surface->pitch) <= -1)
 				ErrSdl();
 
-			// PSPDEV's SDL2 PSP renderer ignores the logical viewport offset when
-			// drawing textures. Apply it here so the image is positioned correctly.
-			SDL_Rect viewport;
-			SDL_RenderGetViewport(renderer, &viewport);
-
-			const SDL_Rect leftRect = { viewport.x, viewport.y, firstTextureWidth, gnScreenHeight };
-			const SDL_Rect rightRect = { viewport.x + firstTextureWidth, viewport.y, gnScreenWidth - firstTextureWidth, gnScreenHeight };
+			// The PSP logical and physical aspect ratios match, so these two
+			// adjacent textures fill the display without stretching the image.
+			const SDL_Rect leftRect = { 0, 0, firstTextureWidth, gnScreenHeight };
+			const SDL_Rect rightRect = { firstTextureWidth, 0, gnScreenWidth - firstTextureWidth, gnScreenHeight };
 
 			if (SDL_RenderCopy(renderer, texture.get(), nullptr, &leftRect) <= -1
 			    || SDL_RenderCopy(renderer, PspRightTexture.get(), nullptr, &rightRect) <= -1)

@@ -148,8 +148,8 @@ Size GetPreferredWindowSize()
 	Size windowSize = forceResolution.width != 0 ? forceResolution : *GetOptions().Graphics.resolution;
 
 #ifdef PSP
-	// Keep the physical SDL window at the PSP resolution. The game and its
-	// 640x480 UI are rendered into a separate logical surface below.
+	// Keep the physical SDL window at the PSP resolution. The logical
+	// framebuffer is wider so SDL can scale both axes uniformly.
 	windowSize = { 480, 272 };
 #else
 #ifndef USE_SDL1
@@ -160,7 +160,9 @@ Size GetPreferredWindowSize()
 #endif
 
 #ifdef PSP
-	AdjustToScreenGeometry({ 640, 480 });
+	// 870x493 has the PSP display's exact 30:17 aspect ratio. Both
+	// dimensions retain room for the original 640x480 UI.
+	AdjustToScreenGeometry({ 870, 493 });
 #else
 	AdjustToScreenGeometry(windowSize);
 #endif

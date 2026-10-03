@@ -776,7 +776,7 @@ void LoadBackgroundArt(const char *pszFile, int frames)
 	UpdateSystemPalette(logical_palette);
 
 #ifdef PSP
-// The PSP renderer presents the 640x480 logical framebuffer through
+// The PSP renderer presents the logical framebuffer through
 // hardware-scaled split textures. Avoid presenting a partially
 // initialized UI while a new background is being installed.
 // The normal UI render loop presents the completed menu immediately
