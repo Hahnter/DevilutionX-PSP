@@ -98,15 +98,20 @@ This is **normal behavior** - same as original Diablo and other PSP games.
    - Case sensitive on some systems
    - File must be complete and valid
 
-2. **Memory stick not formatted correctly**
+2. **Check the extracted asset directories**
+   - `assets/fonts/12-00.clx`, `assets/fonts/grayuis.trn`, and `assets/ui_art/mainmenuw.clx` must be under `PSP/GAME/DevilutionX/`
+   - Files whose names contain `assets\fonts\` were extracted without the required subfolders
+   - When using the release's `assets/` directory, remove any older `devilutionx.mpq` from the game folder
+
+3. **Memory stick not formatted correctly**
    - On PSP: Settings > System Settings > Format Memory Stick
    - Warning: This deletes everything!
 
-3. **Try a different build**
+4. **Try a different build**
    - If you have an older version, try that
    - Might be a specific build issue
 
-4. **Check for disk errors (PPSSPP)**
+5. **Check for disk errors (PPSSPP)**
    - In PPSSPP settings, enable "Disk check" mode
 
 ---

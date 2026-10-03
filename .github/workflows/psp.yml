@@ -1,6 +1,17 @@
 name: PSP
 
 on:
+  push:
+    branches:
+      - psp-enhanced
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+  pull_request:
+    types: [opened, synchronize]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
   workflow_dispatch:
 
 concurrency:
@@ -8,46 +19,99 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  psp:
-    runs-on: ubuntu-22.04
+  build:
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/pspdev/pspdev:latest
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
-    - name: Install Dependencies
-      run: |
-        sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
-        sudo apt-get update -y -qq
-        sudo apt-get install -y cmake curl g++ git lcov libgtest-dev libgmock-dev libfmt-dev libsdl2-dev libsodium-dev libpng-dev libbz2-dev wget gettext
+      - name: Configure CMake
+        shell: bash
+        run: >
+          cmake -S. -Bbuild
+          -DCMAKE_TOOLCHAIN_FILE=${PSPDEV}/psp/share/pspdev.cmake
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DBUILD_PRX=1
+          -DENC_PRX=1
+          -DDEVILUTIONX_SYSTEM_LIBFMT=OFF
 
-    - name: Setup PSPTOOLCHAIN
-      # You may pin to the exact commit or the version.
-      # uses: krystalgamer/setup-psptoolchain@9042bd00c5813d383183c3967aef4f66713a4974
-      uses: krystalgamer/setup-psptoolchain@latest
+      - name: Build
+        shell: bash
+        run: cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 
-    - name: Cache CMake build folder
-      uses: actions/cache@v4
-      with:
-        path: build
-        key: psp-cmake-v5-${{ github.sha }}
-        restore-keys: psp-cmake-v5-
+      - name: Package PSP release ZIP
+        id: package
+        shell: bash
+        run: |
+          test -f build/EBOOT.PBP
+          test -d build/assets
+          test -f build/assets/fonts/12-00.clx
+          test -f build/assets/fonts/grayuis.trn
 
-    - name: Configure CMake
-      shell: bash
-      working-directory: ${{github.workspace}}
-      run: psp-cmake -S. -Bbuild  -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_PRX=1 -DENC_PRX=1
+          if [[ "$GITHUB_REF_TYPE" == tag ]]; then
+            version="${GITHUB_REF_NAME%-psp}"
+          else
+            version="$GITHUB_REF_NAME"
+          fi
+          archive="devilutionx-psp-${version}.zip"
 
-    - name: Build
-      working-directory: ${{github.workspace}}
-      shell: bash
-      run: |
-        cmake --build build -j $(nproc)
+          cp Packaging/psp/README-PSP.txt build/README-PSP.txt
+          cmake -E chdir build cmake -E tar cf "../${archive}" --format=zip EBOOT.PBP assets README-PSP.txt
+          entries="$(cmake -E tar tf "$archive")"
+          if grep -Fq '\' <<< "$entries"; then
+            echo "ZIP contains backslash-separated paths" >&2
+            exit 1
+          fi
+          if grep -Eiq '\.mpq/?$' <<< "$entries"; then
+            echo "ZIP must not contain MPQ files" >&2
+            exit 1
+          fi
+          grep -qx 'EBOOT.PBP' <<< "$entries"
+          grep -qx 'assets/' <<< "$entries"
+          grep -qx 'assets/fonts/12-00.clx' <<< "$entries"
+          grep -qx 'assets/fonts/grayuis.trn' <<< "$entries"
+          grep -qx 'README-PSP.txt' <<< "$entries"
+          echo "archive=${archive}" >> "$GITHUB_OUTPUT"
 
-    - name: Upload-Package
-      if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: EBOOT.PBP
-        path: /home/runner/work/DevilutionX-PSP/DevilutionX-PSP/build
+      - name: Preserve PSP debug executable
+        shell: bash
+        run: |
+          echo "=== PSP build executables ==="
+          find build -type f \( -name "devilutionx" -o -name "*.elf" -o -name "*.map" \) -print
+
+          debug_elf="$(find build -type f -name 'devilutionx' -print -quit)"
+          if [ -z "$debug_elf" ]; then
+            echo "ERROR: Could not find the PSP devilutionx ELF." >&2
+            exit 1
+          fi
+
+          mkdir -p debug-artifacts
+          cp "$debug_elf" debug-artifacts/devilutionx-debug.elf
+          ls -lh debug-artifacts/devilutionx-debug.elf
+          psp-readelf -S debug-artifacts/devilutionx-debug.elf | grep -E '\.symtab|\.debug_' || true
+
+      - name: Upload PSP Build
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: devilutionx-psp-${{ github.ref_name }}
+          path: build/
+
+      - name: Upload PSP ZIP
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.package.outputs.archive }}
+          path: ${{ steps.package.outputs.archive }}
+
+      - name: Upload PSP Debug ELF
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: devilutionx-psp-debug
+          path: debug-artifacts/devilutionx-debug.elf
