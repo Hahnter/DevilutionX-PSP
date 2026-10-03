@@ -58,10 +58,10 @@ jobs:
           cp "$DEBUG_ELF" debug-artifacts/devilutionx-debug.elf
 
           echo "=== Debug ELF information ==="
-          file debug-artifacts/devilutionx-debug.elf
+          ls -lh debug-artifacts/devilutionx-debug.elf
 
           echo "=== Symbol sections ==="
-          readelf -S debug-artifacts/devilutionx-debug.elf | grep -E '\.symtab|\.debug_' || true
+          psp-readelf -S debug-artifacts/devilutionx-debug.elf | grep -E '\.symtab|\.debug_' || true
 
       - name: Upload PSP Build
         if: ${{ !env.ACT }}
