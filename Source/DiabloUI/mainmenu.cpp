@@ -128,9 +128,24 @@ bool UiMainMenuDialog(const char *name, _mainmenu_selections *pdwResult, int att
 			Log("PSP shareware heap after MainmenuLoad: free={} largest={}", sceKernelTotalFreeMemSize(), sceKernelMaxFreeMemSize());
 #endif
 		mainmenu_restart_repintro(); // for automatic starts
+#ifdef PSP
+		bool traceFirstSharewareFrame = gbIsSpawn && !gbIsHellfire;
+#endif
 		while (MainMenuResult == MAINMENU_NONE) {
+#ifdef PSP
+			if (traceFirstSharewareFrame) Log("PSP shareware first frame: before UiClearScreen");
+#endif
 			UiClearScreen();
+#ifdef PSP
+			if (traceFirstSharewareFrame) Log("PSP shareware first frame: before UiPollAndRender");
+#endif
 			UiPollAndRender();
+#ifdef PSP
+			if (traceFirstSharewareFrame) {
+				Log("PSP shareware first frame: after UiPollAndRender");
+				traceFirstSharewareFrame = false;
+			}
+#endif
 			if (SDL_GetTicks() >= dwAttractTicks && (HaveIntro() || gbIsHellfire))
 				MainMenuResult = MAINMENU_ATTRACT_MODE;
 		}
