@@ -87,6 +87,10 @@ std::string padEntryTimerText;
 
 bool IsValidEntry(OptionEntryBase *pOptionEntry)
 {
+#ifdef PSP
+	if (pOptionEntry == &GetOptions().GameMode.gameMode && !HaveHellfire())
+		return false;
+#endif
 	auto flags = pOptionEntry->GetFlags();
 	if (HasAnyOf(flags, OptionEntryFlags::NeedDiabloMpq) && !HaveIntro())
 		return false;
@@ -226,6 +230,10 @@ bool ChangeOptionValue(OptionEntryBase *pOption, size_t listIndex)
 	case OptionEntryType::List: {
 		auto *pOptionList = static_cast<OptionEntryListBase *>(pOption);
 		pOptionList->SetActiveListIndex(listIndex);
+#ifdef PSP
+		if (pOption == &GetOptions().GameMode.gameMode)
+			GetOptions().Mods.SetHellfireEnabled(*GetOptions().GameMode.gameMode == StartUpGameMode::Hellfire);
+#endif
 	} break;
 	case OptionEntryType::Key:
 	case OptionEntryType::PadButton:
@@ -361,6 +369,11 @@ void FullscreenChanged()
 
 void UiSettingsMenu()
 {
+#ifdef PSP
+	// Older settings may say Diablo while the Hellfire mod is active.
+	if (HaveHellfire())
+		GetOptions().GameMode.gameMode.SetValue(gbIsHellfire ? StartUpGameMode::Hellfire : StartUpGameMode::Diablo);
+#endif
 	backToMain = false;
 	shownMenu = ShownMenuType::Categories;
 	selectedCategory = nullptr;
