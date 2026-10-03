@@ -50,6 +50,10 @@ void MainmenuEsc()
 
 void MainmenuLoad(const char *name)
 {
+#ifdef PSP
+	if (gbIsSpawn && !gbIsHellfire)
+		Log("PSP shareware diagnostic: entered MainmenuLoad");
+#endif
 	vecMenuItems.push_back(std::make_unique<UiListItem>(_("Single Player"), MAINMENU_SINGLE_PLAYER));
 	vecMenuItems.push_back(std::make_unique<UiListItem>(_("Multi Player"), MAINMENU_MULTIPLAYER));
 	vecMenuItems.push_back(std::make_unique<UiListItem>(_("Settings"), MAINMENU_SETTINGS));
@@ -59,6 +63,10 @@ void MainmenuLoad(const char *name)
 	vecMenuItems.push_back(std::make_unique<UiListItem>(gbIsHellfire ? _("Exit Hellfire") : _("Exit Diablo"), MAINMENU_EXIT_DIABLO));
 #endif
 
+#ifdef PSP
+	if (gbIsSpawn && !gbIsHellfire)
+		Log("PSP shareware diagnostic: menu items ready");
+#endif
 	if (!gbIsSpawn || gbIsHellfire) {
 		ArtBackgroundWidescreen = LoadOptionalClx("ui_art\\mainmenuw.clx");
 		LoadBackgroundArt("ui_art\\mainmenu");
