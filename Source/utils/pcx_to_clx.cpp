@@ -9,6 +9,10 @@
 #include <optional>
 #include <vector>
 
+#ifdef PSP
+#include <pspsysmem.h>
+#endif
+
 #ifdef USE_SDL3
 #include <SDL3/SDL_pixels.h>
 #else
@@ -118,6 +122,9 @@ OptionalOwnedClxSpriteList PcxToClx(AssetHandle &handle, size_t fileSize, int nu
 	// We process the PCX a whole frame at a time because the lines are reversed in CEL.
 #ifdef PSP
 	Log("PSP PCX: allocating frameBuffer bytes={}", static_cast<size_t>(frameHeight) * width);
+	if (width >= 640 && frameHeight >= 480) {
+		Log("PSP PCX: before frameBuffer free={} largest={}", sceKernelTotalFreeMemSize(), sceKernelMaxFreeMemSize());
+	}
 #endif
 	auto frameBuffer = std::unique_ptr<uint8_t[]>(new uint8_t[static_cast<size_t>(frameHeight) * width]);
 #ifdef PSP
