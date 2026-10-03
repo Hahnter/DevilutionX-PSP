@@ -1,0 +1,67 @@
+name: Publish PSP v1.5.1 release
+
+on:
+  push:
+    branches:
+      - psp-enhanced
+    paths:
+      - .github/workflows/publish-v1.5.1-psp-release.yml
+  workflow_dispatch:
+
+jobs:
+  publish:
+    if: github.repository == 'Hahnter/DevilutionX-PSP-Resurrected'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download published ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download v1.5.0-psp --pattern devilutionx-psp-v1.5.0.zip --dir original
+
+      - name: Package corrected asset paths and verify
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
+
+          source = Path('original/devilutionx-psp-v1.5.0.zip')
+          target = Path('devilutionx-psp-v1.5.1.zip')
+          with ZipFile(source) as original, ZipFile(target, 'w') as repaired:
+              seen = set()
+              for item in original.infolist():
+                  name = item.filename.replace('\\', '/')
+                  assert not name.startswith('/') and '..' not in name.split('/'), name
+                  assert name not in seen and not name.lower().endswith('.mpq'), name
+                  seen.add(name)
+                  output = ZipInfo(name, date_time=item.date_time)
+                  output.compress_type = ZIP_DEFLATED
+                  output.external_attr = item.external_attr
+                  output.create_system = item.create_system
+                  repaired.writestr(output, original.read(item))
+              repaired.write('Packaging/psp/README-PSP.txt', 'README-PSP.txt', compress_type=ZIP_DEFLATED)
+
+          with ZipFile(source) as original, ZipFile(target) as repaired:
+              assert repaired.testzip() is None
+              names = repaired.namelist()
+              assert all('\\' not in name and not name.lower().endswith('.mpq') for name in names)
+              for name in ('EBOOT.PBP', 'README-PSP.txt', 'assets/fonts/12-00.clx',
+                           'assets/fonts/grayuis.trn', 'assets/ui_art/mainmenuw.clx'):
+                  assert name in names, name
+              assert repaired.read('EBOOT.PBP')[:4] == b'\x00PBP'
+              for item in original.infolist():
+                  assert original.read(item) == repaired.read(item.filename.replace('\\', '/'))
+              print(f'Validated {len(names)} ZIP entries with zero MPQ files')
+          PY
+
+      - name: Create v1.5.1 release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create v1.5.1-psp devilutionx-psp-v1.5.1.zip
+          --target "$GITHUB_SHA"
+          --title "PSP v1.5.1"
+          --notes-file Packaging/psp/RELEASE-NOTES-v1.5.1.md
