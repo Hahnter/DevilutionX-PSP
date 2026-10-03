@@ -349,7 +349,7 @@ private:
 
 #ifdef PSP
 constexpr Size PspStandardLogicalSize { 640, 480 };
-constexpr Size PspWidescreenLogicalSize { 870, 493 };
+constexpr Size PspWidescreenLogicalSize { 848, 480 };
 #endif
 
 class OptionEntryResolution : public OptionEntryListBase {

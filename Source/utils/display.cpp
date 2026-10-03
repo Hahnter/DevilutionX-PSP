@@ -203,7 +203,7 @@ void UpdateAvailableResolutions()
 	// supported logical viewports in the Resolution setting.
 	graphicsOptions.resolution.setAvailableResolutions({
 	    { PspStandardLogicalSize, "640x480 (4:3)" },
-	    { PspWidescreenLogicalSize, "870x493 (16:9)" },
+	    { PspWidescreenLogicalSize, "848x480 (Widescreen)" },
 	});
 	return;
 #endif
